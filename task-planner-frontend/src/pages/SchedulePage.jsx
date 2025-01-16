@@ -3,11 +3,19 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+
+// Правильные пути для стилей
+
+import '@fullcalendar/common/main.css';
+// import '@fullcalendar/daygrid/main.css';
+// import '@fullcalendar/timegrid/main.css';
+
 import Modal from 'react-modal';
 import LessonForm from '../components/LessonForm';
+import LessonItem from '../components/LessonItem';
 import './SchedulePage.css';
+
 import axios from 'axios';
-import LessonItem from '../components/LessonItem'; // Убедитесь, что импортировали
 
 Modal.setAppElement('#root');
 
@@ -320,25 +328,6 @@ const SchedulePage = () => {
         }
     };
 
-    // const fetchSchedule = async () => {
-    //     try {
-    //         if (!teacherId) return;
-
-    //         const token = localStorage.getItem('token');
-    //         const response = await axios.get(
-    //             `http://localhost:5000/api/schedule/teacher/${teacherId}`,
-    //             {
-    //                 headers: { Authorization: `Bearer ${token}` },
-    //             }
-    //         );
-    //         console.log(response.data.lessons);
-    //         setEvents(response.data.lessons);
-    //     } catch (error) {
-    //         console.error('Ошибка загрузки расписания:', error);
-    //         alert(error.response?.data?.message || error.message);
-    //     }
-    // };
-
     const fetchSchedule = async () => {
         try {
             if (!teacherId) return;
@@ -450,24 +439,10 @@ const SchedulePage = () => {
         };
     }, [isEditing]);
 
-    // useEffect(() => {
-    //     const initializePage = async () => {
-    //         await fetchUserProfile(); // Устанавливает teacherId
-    //         await fetchSchedule(); // Грузит расписание
-    //     };
-    //     if (teacherId) {
-    //         initializePage();
-    //     } else {
-    //         console.log('error');
-    //     }
-    // }, [teacherId]);
     useEffect(() => {
         const initializePage = async () => {
             try {
                 await fetchUserProfile(); // Устанавливаем teacherId
-                if (teacherId) {
-                    await fetchSchedule(); // Грузим расписание
-                }
             } catch (error) {
                 console.error('Ошибка при загрузке страницы:', error);
             }
@@ -475,6 +450,12 @@ const SchedulePage = () => {
 
         initializePage();
     }, []);
+
+    useEffect(() => {
+        if (teacherId) {
+            fetchSchedule();
+        }
+    }, [teacherId]);
 
     return (
         <div className="schedule-page">
@@ -489,6 +470,40 @@ const SchedulePage = () => {
             )}
 
             <FullCalendar
+                key={calendarKey}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="timeGridWeek"
+                headerToolbar={{
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                }}
+                events={events}
+                eventClick={handleEventClick}
+                locale="ru"
+                height="500px"
+                minTime="08:00:00" // Начало отображаемого времени
+                maxTime="24:00:00" // Конец отображаемого времени
+                slotDuration="00:30:00" // Длительность слотов (30 минут)
+                snapDuration="00:30:00" // Привязка событий к 30 минутам
+                scrollTime="08:00:00" // Начальная позиция прокрутки
+                allDaySlot={false} // Убирает "весь день" слот
+                slotLabelInterval="00:30:00" // Интервал отображения меток времени
+                slotLabelFormat={{
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    omitZeroMinute: false, // Показывает "08:00" вместо "8"
+                    meridiem: false, // Убирает AM/PM (если используется)
+                }}
+                buttonText={{
+                    today: 'Сегодня',
+                    month: 'Месяц',
+                    week: 'Неделя',
+                    day: 'День',
+                }}
+            />
+
+            {/* <FullCalendar
                 key={calendarKey} // Добавьте здесь ключ
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView="timeGridWeek"
@@ -513,7 +528,7 @@ const SchedulePage = () => {
                     week: 'Неделя',
                     day: 'День',
                 }}
-            />
+            /> */}
 
             {/* Рендерим LessonItem, если selectedEvent выбран */}
             {selectedEvent && (
@@ -523,6 +538,7 @@ const SchedulePage = () => {
                     onEdit={(lesson) => openModalForEdit(lesson)} // Используем функцию для редактирования
                     onRevert={handleRevert}
                     onDelete={handleDelete}
+                    onEditCompleted={(lesson) => openModalForEditMark(lesson)}
                     onMark={(lesson) => openModalForMark(lesson)}
                 />
             )}
@@ -547,7 +563,7 @@ const SchedulePage = () => {
                         }
                         onCancel={closeModal}
                     />
-                ) : formType === 'edit' && selectedEvent ? (
+                ) : formType === 'editMark' && selectedEvent ? (
                     <LessonForm
                         formType="editMark"
                         selectedEvent={selectedEvent}

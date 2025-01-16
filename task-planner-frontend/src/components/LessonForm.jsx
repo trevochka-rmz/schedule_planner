@@ -83,7 +83,12 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
     }, []);
     useEffect(() => {
         console.log(formType);
-        if ((formType === 'edit' || formType === 'mark') && selectedEvent) {
+        if (
+            (formType === 'edit' ||
+                formType === 'mark' ||
+                formType === 'editMark') &&
+            selectedEvent
+        ) {
             const { start, end, extendedProps } = selectedEvent;
             setFormData({
                 date: new Date(start).toISOString().split('T')[0],
@@ -96,6 +101,7 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
                 student: extendedProps.studentId,
                 direction: extendedProps.direction,
                 teacher: extendedProps.teacherId,
+                theme: extendedProps.theme,
                 comment: extendedProps.comment || '',
                 commentAfter: extendedProps.commentAfter || '',
             });
@@ -241,7 +247,7 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
                     }
                 />
             </div>
-            {formType === 'mark' ? (
+            {formType === 'mark' || formType === 'editMark' ? (
                 <div className="form-group">
                     <label>Тема:</label>
                     <input

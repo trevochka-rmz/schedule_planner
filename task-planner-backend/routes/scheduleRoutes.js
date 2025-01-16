@@ -9,6 +9,7 @@ const {
     deleteLesson,
     updateLesson,
     getLessonById,
+    getScheduleByID,
 } = require('../controllers/scheduleController');
 const {
     validateLesson,
@@ -30,6 +31,8 @@ router.patch('/lessons/:lessonId', updateLesson);
 
 // Расписание
 router.get('/teacher/:teacherId', getScheduleByTeacher);
-router.get('/teacher/:teacherId', verifyToken, getScheduleByTeacher);
+router.get('/teacherid/:userID', getScheduleByID);
+
+// router.get('/teacher/:teacherId', verifyToken, getScheduleByTeacher);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const LessonItem = ({
     event,
     position,
     onEdit,
+    onEditCompleted,
     onRevert,
     onDelete,
     onMark,
@@ -71,9 +72,14 @@ const LessonItem = ({
             )}
 
             <div className="lesson-item-buttons">
-                <button onClick={() => onEdit(event)}>
-                    {!isCompleted ? 'Изменить' : 'Открыть'}
-                </button>
+                {!isCompleted ? (
+                    <button onClick={() => onEdit(event)}>Изменить</button>
+                ) : (
+                    <button onClick={() => onEditCompleted(event)}>
+                        Открыть
+                    </button>
+                )}
+
                 {!isCompleted ? (
                     <button onClick={() => onMark(event)}>Провести</button>
                 ) : (

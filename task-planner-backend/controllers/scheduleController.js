@@ -2,6 +2,23 @@ const Lesson = require('../models/Lesson');
 const Schedule = require('../models/Schedule');
 const User = require('../models/User');
 
+const getScheduleByID = async (req, res) => {
+    try {
+        const { userID } = req.params;
+        const schedule = await Schedule.findOne({ teacher: userID });
+        if (!schedule) {
+            console.error(
+                `Расписание не найдено для преподавателя с ID: ${userID}`
+            );
+            return res.status(404).json({ message: 'Расписание не найдено' });
+        }
+
+        res.status(200).json(schedule);
+    } catch (error) {
+        console.error(`Ошибка получения расписания`, error.message);
+    }
+};
+
 const getScheduleByTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
@@ -312,22 +329,6 @@ const deleteLesson = async (req, res) => {
     }
 };
 
-const clearSchedule = async (req, res) => {
-    try {
-        const { teacherId } = req.params;
-
-        const schedule = await Schedule.findOneAndUpdate(
-            { teacher: teacherId },
-            { lessons: [] },
-            { new: true }
-        );
-
-        res.status(200).json({ message: 'Расписание очищено', schedule });
-    } catch (error) {
-        res.status(500).json({ message: 'Ошибка очистки расписания', error });
-    }
-};
-
 module.exports = {
     addLessonToSchedule,
     allLesson,
@@ -336,4 +337,5 @@ module.exports = {
     deleteLesson,
     updateLesson,
     getLessonById,
+    getScheduleByID,
 };
