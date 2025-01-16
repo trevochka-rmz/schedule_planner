@@ -1,0 +1,80 @@
+.lesson-form-main {
+    background: #ffffff; /* Убедись, что фон формы — белый */
+    padding: 15px; /* Уменьшенный отступ */
+    border: none; /* Убираем любые границы */
+    border-radius: 8px; /* Оставляем скругление только для формы */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Если нужен тень */
+    max-width: 350px;
+    margin: auto;
+    font-family: 'Arial', sans-serif;
+}
+
+.form-title {
+    margin-bottom: 15px; /* Уменьшение нижнего отступа */
+    font-size: 16px; /* Уменьшение размера шрифта */
+    font-weight: bold;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 10px; /* Уменьшение отступа между полями */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 3px; /* Уменьшение отступа между лейблом и полем */
+    font-weight: bold;
+    font-size: 13px; /* Уменьшение размера шрифта лейбла */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 6px; /* Уменьшение внутреннего отступа */
+    margin-right: 5px;
+    font-size: 13px; /* Уменьшение размера текста */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-group textarea {
+    height: 70px; /* Уменьшение высоты текстового поля */
+    resize: none;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px; /* Уменьшение верхнего отступа */
+}
+
+.submit-button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 12px; /* Уменьшение внутреннего отступа */
+    font-size: 13px; /* Уменьшение размера текста */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.submit-button:hover {
+    background: #45a049;
+}
+
+.cancel-button {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 12px; /* Уменьшение внутреннего отступа */
+    font-size: 13px; /* Уменьшение размера текста */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.cancel-button:hover {
+    background: #e53935;
+}

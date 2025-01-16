@@ -1,0 +1,56 @@
+.lesson-item {
+    position: absolute;
+    background-color: #fff;
+    padding: 10px; /* Уменьшение отступов */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 300px; /* Фиксированная ширина */
+    height: 250px; /* Фиксированная высота, увеличена для учета разного количества строк */
+
+    overflow: hidden; /* Скрыть лишний текст */
+    font-size: 14px; /* Оптимальный размер текста */
+    display: flex;
+    flex-direction: column; /* Расположение элементов по вертикали */
+    justify-content: space-between; /* Равномерное распределение пространства */
+}
+
+.lesson-item h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.lesson-item p {
+    margin: 1px 0; /* Уменьшите значение отступов по своему усмотрению */
+    flex: 1; /* Равномерное распределение пространства между параграфами */
+}
+
+.lesson-item-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap; /* Перенос кнопок, если они не вмещаются */
+    justify-content: center; /* Центрирование кнопок */
+}
+
+.lesson-item-buttons button {
+    flex: 1 1 calc(50% - 8px); /* Кнопки занимают половину ширины строки */
+    background-color: #4caf50;
+    color: white;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.lesson-item-buttons button:hover {
+    background-color: #45a049;
+}
+
+.lesson-item-buttons button:active {
+    background-color: #388e3c;
+}

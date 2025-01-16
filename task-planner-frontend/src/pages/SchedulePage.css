@@ -1,0 +1,60 @@
+.schedule-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+.ReactModal__Overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ReactModal__Content {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    outline: none;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.schedule-page {
+    position: relative;
+    padding: 20px;
+}
+
+.react-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Затемнение */
+    z-index: 9998; /* Обеспечиваем, что фон модального окна будет ниже самого окна */
+}
+
+.react-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999; /* Модальное окно должно быть выше всех других элементов */
+}
+
+.fc {
+    z-index: 1; /* Устанавливаем более низкий z-index для элементов FullCalendar */
+}
+.lesson-details {
+    margin-top: 20px;
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+}

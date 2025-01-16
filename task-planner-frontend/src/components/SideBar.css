@@ -1,0 +1,41 @@
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50; /* Тёмный фон */
+    color: white;
+    height: 100vh; /* Полная высота экрана */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.sidebar-logo {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1abc9c; /* Изумрудный цвет логотипа */
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sidebar-link {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-link:hover {
+    background-color: #1abc9c; /* Изумрудный цвет при наведении */
+}
+
+.sidebar-link.active {
+    background-color: #3498db; /* Синий для активной ссылки */
+    font-weight: bold;
+}
