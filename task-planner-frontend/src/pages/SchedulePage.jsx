@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import '@fullcalendar/react'; // Импорт основного пакета FullCalendar
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
 // Правильные пути для стилей
-
 import '@fullcalendar/common/main.css';
-// import '@fullcalendar/daygrid/main.css';
-// import '@fullcalendar/timegrid/main.css';
 
 import Modal from 'react-modal';
 import LessonForm from '../components/LessonForm';
@@ -107,13 +105,10 @@ const SchedulePage = () => {
                     },
                 },
             ]);
-
-            alert('Занятие успешно добавлено!');
             closeModal();
             await fetchSchedule();
         } catch (error) {
             console.error('Ошибка добавления занятия:', error);
-            alert(error.response?.data?.message || error.message);
         }
     };
 
@@ -340,8 +335,6 @@ const SchedulePage = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            console.log(response);
-            console.log(response.data);
             const lessons = response.data.lessons.map((lesson) => ({
                 id: lesson.id,
                 title: `${lesson.extendedProps.direction} (${lesson.extendedProps.student})`,
@@ -481,14 +474,14 @@ const SchedulePage = () => {
                 events={events}
                 eventClick={handleEventClick}
                 locale="ru"
-                height="500px"
-                minTime="08:00:00" // Начало отображаемого времени
-                maxTime="24:00:00" // Конец отображаемого времени
-                slotDuration="00:30:00" // Длительность слотов (30 минут)
-                snapDuration="00:30:00" // Привязка событий к 30 минутам
-                scrollTime="08:00:00" // Начальная позиция прокрутки
+                height="700px"
+                slotMinTime="09:00" // Начало отображаемого времени для слотов
+                slotMaxTime="24:00" // Конец отображаемого времени для слотов
+                slotDuration="00:15" // Длительность слотов (30 минут)
+                snapDuration="00:30" // Привязка событий к 30 минутам
+                scrollTime="08:00" // Начальная позиция прокрутки
                 allDaySlot={false} // Убирает "весь день" слот
-                slotLabelInterval="00:30:00" // Интервал отображения меток времени
+                slotLabelInterval="00:30" // Интервал отображения меток времени
                 slotLabelFormat={{
                     hour: '2-digit',
                     minute: '2-digit',
@@ -502,33 +495,6 @@ const SchedulePage = () => {
                     day: 'День',
                 }}
             />
-
-            {/* <FullCalendar
-                key={calendarKey} // Добавьте здесь ключ
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="timeGridWeek"
-                headerToolbar={{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay',
-                }}
-                events={events}
-                eventClick={handleEventClick} // Плавно обновляем выбранное событие
-                locale="ru"
-                height="500px"
-                minTime="08:00:00"
-                maxTime="24:00:00"
-                slotDuration="00:30:00"
-                snapDuration="00:30:00"
-                scrollTime="08:00:00"
-                allDaySlot={false}
-                buttonText={{
-                    today: 'Сегодня',
-                    month: 'Месяц',
-                    week: 'Неделя',
-                    day: 'День',
-                }}
-            /> */}
 
             {/* Рендерим LessonItem, если selectedEvent выбран */}
             {selectedEvent && (

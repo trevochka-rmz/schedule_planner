@@ -1,228 +1,49 @@
-.profile-page {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-
-.left-block,
-.right-block,
-.password-section {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.left-block {
-    text-align: center;
-}
-
-.profile-pic {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    margin-bottom: 20px;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.profile-pic:hover {
-    transform: scale(1.05);
-}
-
-.edit-button,
-.save-button,
-.cancel-button,
-.change-password-button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.edit-button {
-    background-color: #007bff;
-    color: white;
-}
-
-.save-button {
-    background-color: #28a745;
-    color: white;
-}
-
-.cancel-button {
-    background-color: #dc3545;
-    color: white;
-    margin-left: 10px;
-}
-
-.change-password-button {
-    background-color: #17a2b8;
-    color: white;
-    margin-top: 15px;
-}
-.edit-form select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.edit-form input,
-.password-form input {
-    width: 95%;
-    padding: 10px;
-    margin-bottom: 10px;
-
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.right-block h3,
-.schedule-section h3,
-.password-section h3 {
-    margin-bottom: 10px;
-    font-size: 18px;
+/* General styling */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
     color: #333;
 }
 
-.schedule-section {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.schedule-section ul {
-    list-style: none;
-    padding: 0;
-}
-
-.schedule-section li {
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
-}
-
-.password-section {
-    margin-top: 20px;
-}
-
-.password-form input {
-    margin-bottom: 10px;
-}
-
-.password-form button {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border: none;
-    border-radius: 4px;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-}
-
-.password-form button:hover {
-    background-color: #218838;
-}
 .profile-page {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
     gap: 20px;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-
-.left-block {
-    flex: 2;
-    min-width: 300px;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.right-block {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    min-height: 180px;
-    max-height: 180px;
-}
-
-.right-block p {
-    margin: 0;
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
-}
-
-.schedule-section {
-    flex: 1;
-    min-width: 100%;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-.password-section {
-    margin-top: 20px;
-}
-
-.password-form input {
-    margin-bottom: 10px;
-}
-.profile-page {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-}
-
-.left-block {
-    flex: 2;
-    min-width: 300px;
-}
-
-.right-block {
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-.schedule-section {
-    flex: 1;
-    min-width: 100%;
-    margin-top: 20px;
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-.left-block {
-    display: flex;
     align-items: flex-start;
+}
+
+/* Left block */
+.left-block {
+    flex: 2 600px;
+    min-height: 210px;
+    max-height: 800px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
     gap: 20px;
+    /* align-items: flex-start; */
+    /* flex-direction: row; */
+    justify-content: right;
+}
+
+.left-block-content {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    margin-bottom: 20px;
+}
+
+.left-info-block {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
 }
 
 .profile-pic {
@@ -230,26 +51,183 @@
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
+    cursor: pointer;
+    border: 2px solid #007bff;
 }
 
 .profile-info {
-    flex-grow: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-info h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.profile-info p {
+    margin: 5px 0;
+    font-size: 1em;
+    color: #666;
+}
+
+.edit-button {
+    margin-top: 10px;
+    align-self: flex-start;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+    text-align: center;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
+
+.edit-form {
+    margin-top: 20px;
+}
+
+.edit-form input {
+    width: 95%;
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+.edit-form select {
+    width: 98%;
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+.gender-input {
+    font-size: 0.9em;
+}
+
+.save-button,
+.cancel-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 10px 5px 0 0;
+    display: inline-block;
+    width: 48%;
+    text-align: center;
+}
+
+.save-button {
+    background-color: #28a745;
+}
+
+.save-button:hover {
+    background-color: #218838;
+}
+
+.cancel-button {
+    background-color: #dc3545;
+}
+
+.cancel-button:hover {
+    background-color: #c82333;
+}
+
+.error {
+    color: #dc3545;
+    margin: 10px 0;
+}
+
+.success {
+    color: #28a745;
+    margin: 10px 0;
+}
+
+/* Right block */
+.right-block {
+    flex: 1 1 300px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    height: 250px;
+    box-sizing: border-box;
+    /* overflow-y: auto; */
 }
 
 .profile-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 10px 0;
-}
-
-.profile-table th,
-.profile-table td {
-    text-align: left;
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
 }
 
 .profile-table th {
-    color: #555;
+    text-align: left;
     font-weight: bold;
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+.profile-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Schedule section */
+.schedule-section {
+    flex: 1 1 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.schedule-section ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.schedule-section li {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-section h3 {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .profile-page {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .left-block,
+    .right-block,
+    .schedule-section {
+        width: 100%;
+    }
+}
+
+/* Align photo to the left and information to the right  */
+.edit-button {
+    margin-top: 20px;
 }

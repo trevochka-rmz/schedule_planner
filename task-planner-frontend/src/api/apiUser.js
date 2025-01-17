@@ -40,6 +40,10 @@ export const uploadUserPhoto = async (file) => {
     });
 };
 
+export const getTeacherSchedule = async (teacherId) => {
+    return axios.get(`${API_BASE_URL}/schedule/teacher/${teacherId}`);
+};
+
 export const changeUserPassword = async (currentPassword, newPassword) => {
     if (!currentPassword || !newPassword) {
         throw new Error('Текущий и новый пароли обязательны.');

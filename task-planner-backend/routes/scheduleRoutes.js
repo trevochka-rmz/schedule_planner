@@ -10,6 +10,7 @@ const {
     updateLesson,
     getLessonById,
     getScheduleByID,
+    getScheduleByStudent,
 } = require('../controllers/scheduleController');
 const {
     validateLesson,
@@ -31,6 +32,7 @@ router.patch('/lessons/:lessonId', updateLesson);
 
 // Расписание
 router.get('/teacher/:teacherId', getScheduleByTeacher);
+router.get('/student/:studentId', getScheduleByStudent);
 router.get('/teacherid/:userID', getScheduleByID);
 
 // router.get('/teacher/:teacherId', verifyToken, getScheduleByTeacher);

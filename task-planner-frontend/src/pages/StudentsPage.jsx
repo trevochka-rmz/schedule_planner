@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './StudentsPage.css';
+import { Link } from 'react-router-dom';
 
 const StudentsPage = () => {
     const [students, setStudents] = useState([]);
@@ -121,7 +122,14 @@ const StudentsPage = () => {
                     {filteredStudents.map((student) => (
                         <tr key={student._id}>
                             {visibleFields.fullname && (
-                                <td>{student.fullname}</td>
+                                <td>
+                                    <Link
+                                        to={`/students/${student._id}`}
+                                        style={{ textDecoration: 'none' }}
+                                    >
+                                        {student.fullname}
+                                    </Link>
+                                </td>
                             )}
                             {visibleFields.direction && (
                                 <td>{student.studentInfo.direction || '—'}</td>

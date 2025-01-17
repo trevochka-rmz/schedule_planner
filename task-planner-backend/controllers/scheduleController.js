@@ -1,6 +1,29 @@
 const Lesson = require('../models/Lesson');
 const Schedule = require('../models/Schedule');
 const User = require('../models/User');
+const ScheduleStudent = require('../models/ScheduleStudent');
+
+function getDayOfWeek(dateString) {
+    // Создаем объект Date из строки
+    const date = new Date(dateString);
+
+    // Получаем номер дня недели (0 - воскресенье, 6 - суббота)
+    const dayOfWeekNumber = date.getDay();
+
+    // Массив с названиями дней недели
+    const daysOfWeek = [
+        'Воскресенье',
+        'Понедельник',
+        'Вторник',
+        'Среда',
+        'Четверг',
+        'Пятница',
+        'Суббота',
+    ];
+
+    // Возвращаем название дня недели
+    return daysOfWeek[dayOfWeekNumber];
+}
 
 const getScheduleByID = async (req, res) => {
     try {
@@ -101,9 +124,118 @@ const getScheduleByTeacher = async (req, res) => {
                                 lesson.teacher?.fullname ||
                                 'Неизвестный преподаватель',
                             direction: lesson.direction || 'Не указано',
-                            theme: lesson.theme || 'Не указано',
+                            theme: lesson.theme || '',
                             comment: lesson.comment || 'Не указано',
-                            commentAfter: lesson.commentAfter || 'Не указано',
+                            commentAfter: lesson.commentAfter || '',
+                        },
+                    };
+                } catch (error) {
+                    console.error(
+                        `Ошибка форматирования урока с ID: ${lesson._id}`,
+                        error.message
+                    );
+                    return null; // Пропускаем ошибочные уроки
+                }
+            })
+            .filter(Boolean); // Убираем null-значения
+
+        res.status(200).json({ lessons: formattedLessons });
+    } catch (error) {
+        console.error('Ошибка сервера при получении расписания:', error);
+        res.status(500).json({
+            message: 'Ошибка сервера',
+            error: error.message,
+        });
+    }
+};
+
+const getScheduleByStudent = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+
+        // Проверяем, существует ли расписание
+        const scheduleStudent = await ScheduleStudent.findOne({
+            student: studentId,
+        }).populate({
+            path: 'lessons',
+            populate: {
+                path: 'student teacher',
+                select: 'fullname email',
+            },
+        });
+        if (!scheduleStudent) {
+            console.error(
+                `Расписание не найдено для студента с ID: ${teacherId}`
+            );
+            return res.status(404).json({ message: 'Расписание не найдено' });
+        }
+
+        // Форматируем данные
+        const formattedLessons = scheduleStudent.lessons
+            .map((lesson) => {
+                try {
+                    let startDate;
+
+                    // Определяем тип `lesson.date`
+                    if (typeof lesson.date === 'string') {
+                        // Если `lesson.date` — это строка
+                        if (lesson.date.includes('T')) {
+                            startDate = new Date(lesson.date); // ISO-формат
+                        } else {
+                            // Если `lesson.date` — это дата без времени
+                            startDate = new Date(
+                                `${lesson.date}T${lesson.time}`
+                            );
+                        }
+                    } else if (lesson.date instanceof Date) {
+                        // Если `lesson.date` — это объект Date
+                        startDate = new Date(
+                            `${lesson.date.toISOString().split('T')[0]}T${
+                                lesson.time
+                            }`
+                        );
+                    } else {
+                        throw new Error(
+                            `Некорректный формат даты: ${lesson.date}`
+                        );
+                    }
+
+                    // Проверяем корректность времени
+                    if (isNaN(startDate.getTime())) {
+                        throw new Error(
+                            `Некорректное время: ${lesson.date}T${lesson.time}`
+                        );
+                    }
+                    // Рассчитываем endDate
+                    const endDate = new Date(
+                        startDate.getTime() + (lesson.duration || 0) * 60000
+                    );
+                    const dayOfWeek = getDayOfWeek(startDate.toISOString());
+                    return {
+                        id: lesson._id,
+                        title: `${lesson.direction} (${
+                            lesson.student?.fullname || 'Без имени'
+                        })`,
+                        start: startDate.toISOString(),
+                        end: endDate.toISOString(),
+                        status: lesson.status,
+                        dayOfWeek: dayOfWeek,
+                        extendedProps: {
+                            studentID:
+                                lesson.student?._id || 'Неизвестный ID студент',
+                            teacherID:
+                                lesson.teacher?._id ||
+                                'Неизвестный ID преподаватель',
+                            student:
+                                lesson.student?.fullname ||
+                                'Неизвестный студент',
+                            teacher:
+                                lesson.teacher?.fullname ||
+                                'Неизвестный преподаватель',
+                            direction: lesson.direction || 'Не указано',
+                            theme: lesson.theme || '',
+                            comment: lesson.comment || 'Не указано',
+                            commentAfter: lesson.commentAfter || '',
                         },
                     };
                 } catch (error) {
@@ -195,6 +327,22 @@ const addLessonToSchedule = async (req, res) => {
             // Если расписания нет, создаём новое
             schedule = await Schedule.create({
                 teacher: lessonData.teacher,
+                lessons: [newLesson._id],
+            });
+        }
+
+        // Получаем расписание преподавателя
+        let scheduleStudent = await ScheduleStudent.findOne({
+            student: lessonData.student,
+        });
+        // Если расписание существует — обновляем startDate и endDate
+        if (scheduleStudent) {
+            scheduleStudent.lessons.push(newLesson._id);
+            await scheduleStudent.save();
+        } else {
+            // Если расписания нет, создаём новое
+            scheduleStudent = await ScheduleStudent.create({
+                student: lessonData.student,
                 lessons: [newLesson._id],
             });
         }
@@ -315,6 +463,10 @@ const deleteLesson = async (req, res) => {
             { lessons: lessonId },
             { $pull: { lessons: lessonId } }
         );
+        await ScheduleStudent.updateOne(
+            { lessons: lessonId },
+            { $pull: { lessons: lessonId } }
+        );
 
         // Удалить сам урок
         await Lesson.findByIdAndDelete(lessonId);
@@ -338,4 +490,5 @@ module.exports = {
     updateLesson,
     getLessonById,
     getScheduleByID,
+    getScheduleByStudent,
 };

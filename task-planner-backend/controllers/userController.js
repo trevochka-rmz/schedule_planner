@@ -52,9 +52,7 @@ const getAllTeacher = async (req, res) => {
 };
 const getStudentById = async (req, res) => {
     try {
-        const student = await User.findById(req.params.id).select(
-            'studentInfo'
-        );
+        const student = await User.findById(req.params.id);
         if (!student) {
             return res.status(404).json({ message: 'Студент не найден' });
         }

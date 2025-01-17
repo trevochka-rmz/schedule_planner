@@ -15,6 +15,7 @@ import GroupsPage from './pages/GroupsPage';
 import LoginPage from './pages/LoginPage';
 import axios from 'axios';
 import './App.css';
+import StudentProfilePage from './pages/StudentProfilePage';
 
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -129,6 +130,10 @@ const App = () => {
                                 <Route
                                     path="/groups"
                                     element={<GroupsPage />}
+                                />
+                                <Route
+                                    path="/students/:id"
+                                    element={<StudentProfilePage />}
                                 />
                                 <Route
                                     path="*"
