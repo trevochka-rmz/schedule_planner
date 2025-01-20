@@ -1,10 +1,10 @@
 /* Основное окно модального окна */
-.react-modal-content {
+.add-regular-lesson-modal {
     background: #ffffff;
     padding: 20px;
     border-radius: 8px;
-    width: 400px;
-    max-height: 60vh;
+    width: 600px;
+    max-height: 90vh;
     height: auto;
     margin: auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -14,7 +14,7 @@
 }
 
 /* Затенение фона при открытом модальном окне */
-.react-modal-overlay {
+.add-regular-lesson-overlay {
     background: rgba(0, 0, 0, 0.5);
     position: fixed;
     top: 0;
@@ -27,33 +27,20 @@
     z-index: 1000;
 }
 
-.lesson-form-main h2 {
+.add-regular-lesson-modal h2 {
     font-size: 1.2rem;
     margin-bottom: 8px;
     text-align: center;
     color: #333;
 }
 
-.lesson-form-main {
-    position: fixed;
-    /* max-height: 80vh; */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    min-width: 600px;
-    gap: 3px;
+.add-regular-lesson-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Уменьшенный отступ между элементами */
 }
 
-.lesson-form-main.mark {
-    max-height: 90vh;
-}
-
-.lesson-form-main.default {
-    max-height: 80vh;
-}
-
-.lesson-form-main label {
+.add-regular-lesson-modal label {
     display: block;
     font-size: 0.9rem;
     font-weight: 600;
@@ -61,38 +48,38 @@
     margin-bottom: 2px;
 }
 
-.lesson-form-main select {
+.add-regular-lesson-modal select {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
 }
-.lesson-form-main input {
+.add-regular-lesson-modal input {
     width: 97%;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
 }
-.lesson-form-main .form-row {
+.add-regular-lesson-modal .form-row {
     display: flex;
     flex-direction: column;
 }
 
-.lesson-form-main .period-row {
+.add-regular-lesson-modal .period-row {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.lesson-form-main .modal-buttons {
+.add-regular-lesson-modal .modal-buttons {
     display: flex;
     justify-content: space-between; /* Кнопка отмена справа */
     gap: 10px;
 }
 
-.lesson-form-main button {
+.add-regular-lesson-modal button {
     padding: 10px 15px;
     font-size: 1rem;
     border: none;
@@ -102,22 +89,22 @@
     margin-top: 10px;
 }
 
-.lesson-form-main button[type='submit'] {
+.add-regular-lesson-modal button[type='submit'] {
     background-color: #4caf50;
     color: white;
 }
 
-.lesson-form-main button[type='submit']:hover {
+.add-regular-lesson-modal button[type='submit']:hover {
     background-color: #45a049;
 }
 
-.lesson-form-main button[type='button'] {
+.add-regular-lesson-modal button[type='button'] {
     background-color: #f44336;
     color: white;
     margin-left: auto; /* Сдвиг кнопки отмена вправо */
 }
 
-.lesson-form-main button[type='button']:hover {
+.add-regular-lesson-modal button[type='button']:hover {
     background-color: #e53935;
 }
 

@@ -72,20 +72,25 @@ const LessonItem = ({
             )}
 
             <div className="lesson-item-buttons">
-                {!isCompleted ? (
-                    <button onClick={() => onEdit(event)}>Изменить</button>
-                ) : (
-                    <button onClick={() => onEditCompleted(event)}>
-                        Открыть
-                    </button>
-                )}
+                <div className="button-main">
+                    {!isCompleted ? (
+                        <button onClick={() => onEdit(event)}>Изменить</button>
+                    ) : (
+                        <button onClick={() => onEditCompleted(event)}>
+                            Открыть
+                        </button>
+                    )}
 
-                {!isCompleted ? (
-                    <button onClick={() => onMark(event)}>Провести</button>
-                ) : (
-                    <button onClick={() => onRevert(event)}>Вернуть</button>
-                )}
-                <button onClick={() => onDelete(event)}>Удалить</button>
+                    <button onClick={() => onDelete(event)}>Удалить</button>
+                    <button onClick={() => onDelete(event)}>Отменить</button>
+                </div>
+                <div className="button-second">
+                    {!isCompleted ? (
+                        <button onClick={() => onMark(event)}>Провести</button>
+                    ) : (
+                        <button onClick={() => onRevert(event)}>Вернуть</button>
+                    )}
+                </div>
             </div>
         </div>
     );

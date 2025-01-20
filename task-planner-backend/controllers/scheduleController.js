@@ -49,13 +49,16 @@ const getScheduleByTeacher = async (req, res) => {
         // Проверяем, существует ли расписание
         const schedule = await Schedule.findOne({
             teacher: teacherId,
-        }).populate({
-            path: 'lessons',
-            populate: {
-                path: 'student teacher',
-                select: 'fullname email',
-            },
-        });
+        })
+            .populate({
+                path: 'lessons',
+                populate: {
+                    path: 'student teacher',
+                    select: 'fullname email',
+                    options: { lean: true },
+                },
+            })
+            .lean();
         if (!schedule) {
             console.error(
                 `Расписание не найдено для преподавателя с ID: ${teacherId}`

@@ -1,56 +1,149 @@
-.lesson-item {
-    position: absolute;
-    background-color: #fff;
-    padding: 10px; /* Уменьшение отступов */
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    width: 300px; /* Фиксированная ширина */
-    height: 250px; /* Фиксированная высота, увеличена для учета разного количества строк */
-
-    overflow: hidden; /* Скрыть лишний текст */
-    font-size: 14px; /* Оптимальный размер текста */
-    display: flex;
-    flex-direction: column; /* Расположение элементов по вертикали */
-    justify-content: space-between; /* Равномерное распределение пространства */
+.lesson-form-main {
+    background: #ffffff; /* Убедись, что фон формы — белый */
+    padding: 15px; /* Уменьшенный отступ */
+    border: none; /* Убираем любые границы */
+    border-radius: 8px; /* Оставляем скругление только для формы */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Если нужен тень */
+    max-width: 350px;
+    margin: auto;
+    font-family: 'Arial', sans-serif;
 }
 
-.lesson-item h3 {
-    font-size: 16px;
-    margin-bottom: 8px;
+.form-group textarea {
+    width: 97%;
+    padding: 6px; /* Уменьшение внутреннего отступа */
+    margin-right: 5px;
+    font-size: 13px; /* Уменьшение размера текста */
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
-.lesson-item p {
-    margin: 1px 0; /* Уменьшите значение отступов по своему усмотрению */
-    flex: 1; /* Равномерное распределение пространства между параграфами */
+.form-group textarea {
+    height: 70px; /* Уменьшение высоты текстового поля */
+    resize: none;
 }
-
 .lesson-item-buttons {
-    margin-top: 10px;
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap; /* Перенос кнопок, если они не вмещаются */
-    justify-content: center; /* Центрирование кнопок */
+    gap: 10px; /* Отступ между кнопками */
 }
 
 .lesson-item-buttons button {
-    flex: 1 1 calc(50% - 8px); /* Кнопки занимают половину ширины строки */
-    background-color: #4caf50;
-    color: white;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
     cursor: pointer;
-    font-size: 13px;
-    text-align: center;
-    transition: background-color 0.3s ease;
 }
 
 .lesson-item-buttons button:hover {
-    background-color: #45a049;
+    background-color: #f0f0f0;
+}
+.lesson-item p {
+    margin: 5px 0; /* Уменьшаем отступы сверху и снизу */
+}
+/* Заголовок */
+.lesson-item h3 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    color: #444;
+    font-weight: bold;
+    margin-top: 10px;
 }
 
+/* Контейнер кнопок */
+.lesson-item-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Расстояние между кнопками */
+    margin-top: 6px;
+}
+
+/* Стили для кнопок */
+.lesson-item-buttons button {
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.button-main {
+    display: flex;
+    justify-content: space-between; /* Кнопка отмена справа */
+}
+/* Цвет кнопок при наведении */
+.lesson-item-buttons button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px); /* Лёгкий подъем при наведении */
+}
+
+/* Активное состояние кнопки */
 .lesson-item-buttons button:active {
-    background-color: #388e3c;
+    background-color: #004494;
+    transform: translateY(0); /* Возврат при нажатии */
+}
+
+.lesson-item-buttons button:nth-child(2) {
+    background-color: #dc3545;
+}
+
+.lesson-item-buttons button:nth-child(2):hover {
+    background-color: #c82333;
+}
+
+.lesson-item-buttons button:nth-child(2):active {
+    background-color: #a71d2a;
+}
+
+.lesson-item-buttons button:nth-child(3) {
+    background-color: #979595f4;
+}
+
+.lesson-item-buttons button:nth-child(3):hover {
+    background-color: #979595f4;
+}
+
+.lesson-item-buttons button:nth-child(3):active {
+    background-color: #979595f4;
+}
+
+.button-second button {
+    background-color: #28a745; /* Зеленый для подтверждения */
+    /* width: 100%; */
+}
+
+.button-second button:hover {
+    background-color: #218838;
+}
+
+.button-second button:active {
+    background-color: #1e7e34;
+}
+.lesson-item-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Расстояние между блоками кнопок */
+}
+
+.button-main {
+    display: flex;
+    gap: 10px; /* Расстояние между кнопками */
+    justify-content: space-between; /* Распределяет кнопки по всей ширине строки */
+    flex-wrap: wrap; /* Чтобы кнопки переносились на следующую строку при необходимости */
+}
+
+.button-main button {
+    flex: 1; /* Все кнопки занимают равное пространство */
+    max-width: 150px; /* Можно задать максимальную ширину для кнопок */
+}
+
+.button-second {
+    display: flex;
+}
+
+.button-second button {
+    width: 100%; /* Кнопка занимает всю ширину блока */
 }

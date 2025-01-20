@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/db'); // Подключаем файл для подключения базы данных
 const { PORT, CLIENT_URL } = require('./config/keys'); // Импортируем ключи из keys.js
 const userRoutes = require('./routes/userRoutes'); // Роуты для пользователей
+const regularRoutes = require('./routes/regularRoutes'); // Роуты для регулярного занятия
 const scheduleRoutes = require('./routes/scheduleRoutes'); // Роуты для расписания
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 const path = require('path');
@@ -31,6 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // Для обработки
 // API Роуты
 app.use('/api/users', userRoutes); // Маршруты для пользователей
 app.use('/api/schedule', scheduleRoutes); // Маршруты для расписания
+app.use('/api/regular', regularRoutes);
 
 // Главный маршрут (для проверки сервера)
 app.get('/', (req, res) => {

@@ -1,56 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import AsyncSelect from 'react-select/async';
+import Select from 'react-select';
+import axios from 'axios';
 import './LessonForm.css';
-
-const fetchStudents = async (inputValue) => {
-    const response = await fetch(
-        `http://localhost:5000/api/users/students?search=${inputValue}`
-    );
-    const students = await response.json();
-    return students.map((student) => ({
-        label: student.fullname,
-        value: student._id,
-    }));
-};
-
-const fetchTeachers = async (inputValue) => {
-    const response = await fetch(
-        `http://localhost:5000/api/users/teachers?search=${inputValue}`
-    );
-    const teachers = await response.json();
-    return teachers.map((teacher) => ({
-        label: teacher.fullname,
-        value: teacher._id,
-    }));
-};
-
-const getStudentInfo = async (studentId) => {
-    const response = await fetch(
-        `http://localhost:5000/api/users/student/${studentId}`
-    );
-    if (!response.ok) throw new Error('Ошибка получения данных студента');
-    const student = await response.json();
-    return student.studentInfo;
-};
-
-const TeacherSelector = ({ defaultValue, onChange }) => (
-    <AsyncSelect
-        cacheOptions
-        loadOptions={fetchTeachers}
-        defaultOptions
-        defaultValue={defaultValue}
-        onChange={onChange}
-    />
-);
-
-const StudentSelector = ({ onChange }) => (
-    <AsyncSelect
-        cacheOptions
-        loadOptions={fetchStudents}
-        defaultOptions
-        onChange={onChange}
-    />
-);
 
 const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
     const [formData, setFormData] = useState({
@@ -69,6 +20,59 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
     const [defaultTeacher, setDefaultTeacher] = useState(null);
     const [defaultStudent, setDefaultStudent] = useState(null);
     const [errors, setErrors] = useState([]);
+    const [teachersOptions, setTeachersOptions] = useState([]);
+    const [studentsOptions, setStudentsOptions] = useState([]);
+
+    // Получение информации о студенте
+    const getStudentInfo = async (studentId) => {
+        const response = await fetch(
+            `http://localhost:5000/api/users/student/${studentId}`
+        );
+        if (!response.ok) throw new Error('Ошибка получения данных студента');
+        const student = await response.json();
+        return student.studentInfo;
+    };
+
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            const token = localStorage.getItem('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+            const response = await axios.get(
+                'http://localhost:5000/api/users/teachers',
+                config
+            );
+            const teachers = response.data.map((teacher) => ({
+                label: teacher.fullname,
+                value: teacher._id,
+            }));
+            setTeachersOptions(teachers);
+
+            const currentUserId = getCurrentUserIdFromToken(token);
+            const currentUser = teachers.find((t) => t.value === currentUserId);
+            if (currentUser) {
+                setFormData((prev) => ({
+                    ...prev,
+                    teacher: currentUser.value,
+                }));
+                setDefaultTeacher(currentUser);
+            }
+        };
+
+        const fetchStudents = async () => {
+            const response = await axios.get(
+                'http://localhost:5000/api/users/students'
+            );
+            const students = response.data.map((student) => ({
+                label: student.fullname,
+                value: student._id,
+            }));
+            setStudentsOptions(students);
+        };
+
+        fetchTeachers();
+        fetchStudents();
+    }, []);
 
     useEffect(() => {
         const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -150,20 +154,26 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
         if (formType === 'edit') {
             await onSubmit(formData); // handleEditLesson из SchedulePage
         } else {
+            console.log(formData);
             onSubmit(formData); // handleAddLesson из SchedulePage
         }
     };
 
     return (
-        <form className="lesson-form-main" onSubmit={handleSubmit}>
+        <form
+            className={`lesson-form-main ${
+                formType === 'mark' ? 'mark' : 'default'
+            }`}
+            onSubmit={handleSubmit}
+        >
             {formType == 'add' ? (
-                <h3 className="form-title">Добавить занятие</h3>
+                <h2 className="form-title">Добавить занятие</h2>
             ) : formType == 'edit' ? (
-                <h3 className="form-title">Изменить запланированное занятие</h3>
+                <h2 className="form-title">Изменить запланированное занятие</h2>
             ) : formType == 'editMark' ? (
-                <h3 className="form-title">Изменить проведенное занятие</h3>
+                <h2 className="form-title">Изменить проведенное занятие</h2>
             ) : (
-                <h3 className="form-title">Провести занятие</h3>
+                <h2 className="form-title">Провести занятие</h2>
             )}
 
             {errors.length > 0 && (
@@ -212,6 +222,7 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
+                    placeholder="Выберите локацию"
                 >
                     <option value="Онлайн">Онлайн</option>
                     <option value="Кабинет 101">Кабинет 101</option>
@@ -220,9 +231,18 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
             </div>
             <div className="form-group">
                 <label>Клиент:</label>
-                <StudentSelector
+                <Select
+                    options={studentsOptions}
+                    className="select-user"
+                    name="student"
+                    value={
+                        studentsOptions.find(
+                            (option) => option.value === formData.student
+                        ) || defaultStudent
+                    }
                     onChange={handleStudentChange}
-                    defaultValue={defaultStudent}
+                    placeholder="Выберите студента"
+                    required
                 />
             </div>
             <div className="form-group">
@@ -232,19 +252,29 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
                     name="direction"
                     value={formData.direction}
                     onChange={handleChange}
+                    placeholder="Напишите направление"
                     required
                 />
             </div>
             <div className="form-group">
                 <label>Преподаватель:</label>
-                <TeacherSelector
-                    defaultValue={defaultTeacher}
+                <Select
+                    options={teachersOptions}
+                    name="teacher"
+                    className="select-user"
+                    value={
+                        teachersOptions.find(
+                            (option) => option.value === formData.teacher
+                        ) || defaultTeacher
+                    }
                     onChange={(selectedOption) =>
                         setFormData({
                             ...formData,
                             teacher: selectedOption.value,
                         })
                     }
+                    placeholder="Выберите преподавателя"
+                    required
                 />
             </div>
             {formType === 'mark' || formType === 'editMark' ? (
@@ -274,11 +304,12 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
                         name="commentAfter"
                         value={formData.commentAfter}
                         onChange={handleChange}
+                        placeholder="Напишите как прошло занятие"
                     ></textarea>
                 </div>
             )}
 
-            <div className="form-buttons">
+            <div className="modal-buttons">
                 <button type="submit">
                     {formType === 'edit'
                         ? 'Сохранить изменения'
@@ -287,16 +318,22 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
                         : 'Провести'}
                 </button>
 
-                <button
-                    type="button"
-                    className="cancel-button"
-                    onClick={onCancel}
-                >
+                <button type="button" onClick={onCancel}>
                     Отмена
                 </button>
             </div>
         </form>
     );
+};
+
+const getCurrentUserIdFromToken = (token) => {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.id;
+    } catch (e) {
+        console.error('Ошибка извлечения ID из токена:', e);
+        return null;
+    }
 };
 
 export default LessonForm;

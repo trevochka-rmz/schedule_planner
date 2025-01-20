@@ -3,11 +3,24 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './StudentProfilePage.css';
 import AttendanceWidget from '../components/AttendanceWidget';
+import AddRegularLessonModal from '../components/AddRegularLessonModal';
+import RegularLessonsList from '../components/RegularLessonsList';
 
 function StudentProfilePage() {
     const { id } = useParams(); // Получаем id студента из маршрута
     const [student, setStudent] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+    const handleSuccess = () => {
+        console.log('Занятие успешно добавлено!');
+        // Здесь можно обновить список занятий
+    };
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
     useEffect(() => {
         const fetchStudent = async () => {
             try {
@@ -37,24 +50,35 @@ function StudentProfilePage() {
     }
     return (
         <div className="student-profile-page">
-            <div className="left-block">
-                <img
-                    src={student.urlPhoto || 'https://via.placeholder.com/150'}
-                    alt="Фото студента"
-                    className="profile-pic"
-                />
-                <div className="profile-info">
-                    <h2>{student.fullname}</h2>
-                    <p>Направление: {student.studentInfo?.direction || '—'}</p>
-                    <p>
-                        Статус:{' '}
-                        {student.studentInfo?.isActive
-                            ? 'Активен'
-                            : 'Неактивен'}
-                    </p>
+            <div className="left-block-page">
+                <div className="left-block-student">
+                    <img
+                        src={
+                            student.urlPhoto ||
+                            'https://via.placeholder.com/150'
+                        }
+                        alt="Фото студента"
+                        className="profile-pic"
+                    />
+                    <div className="profile-info">
+                        <h2>{student.fullname}</h2>
+                        <p>
+                            Направление: {student.studentInfo?.direction || '—'}
+                        </p>
+                        <p>
+                            Статус:{' '}
+                            {student.studentInfo?.isActive
+                                ? 'Активен'
+                                : 'Неактивен'}
+                        </p>
+                    </div>
+                </div>
+                <div className="block-attendance">
+                    <AttendanceWidget studentId={id} />
                 </div>
             </div>
-            <div className="right-block">
+
+            <div className="right-block-student-profile">
                 <h3>Контакты</h3>
                 <table className="profile-table">
                     <tbody>
@@ -72,11 +96,34 @@ function StudentProfilePage() {
                         </tr>
                     </tbody>
                 </table>
-                <h3>Количество проведенных уроков</h3>
-                <p>{student.studentInfo?.lessonsCompleted || 0}</p>
+                <h3>Уроки</h3>
+                <table className="profile-table">
+                    <tbody>
+                        <tr>
+                            <th>Остаток:</th>
+                            <td>
+                                {student.studentInfo?.lessonsRemaining || '—'}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Проведено:</th>
+                            <td>
+                                {student.studentInfo?.lessonsCompleted || '—'}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h1>Расписание</h1>
+                <button onClick={handleOpenModal}>
+                    Добавить регулярное занятие
+                </button>
+                <AddRegularLessonModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    onSuccess={handleSuccess}
+                />
+                <RegularLessonsList studentId={id} />
             </div>
-
-            <AttendanceWidget studentId={id} />
         </div>
     );
 }
