@@ -1,19 +1,88 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail } = require('../utils/sendEmail');
 // Получение всех пользователей (только для администратора)
 const getAllUsers = async (req, res) => {
+    const page = parseInt(req.query.page) || 1; // Текущая страница
+    const limit = parseInt(req.query.limit) || 8; // Количество записей на странице
+    const skip = (page - 1) * limit;
+
     try {
-        //const users = await User.find({}, '-password'); // Убираем поле пароля из результатов
-        const users = await User.find({}); // Убираем поле пароля из результатов
-        res.status(200).json(users);
+        const users = await User.find().skip(skip).limit(limit);
+        const total = await User.countDocuments(); // Общее количество записей
+        res.json({ users, total });
+    } catch (err) {
+        res.status(500).json({ message: 'Ошибка сервера', error: err.message });
+    }
+};
+
+const getAllStudentPages = async (req, res) => {
+    const page = parseInt(req.query.page) || 1; // Текущая страница
+    const limit = parseInt(req.query.limit) || 8; // Количество записей на странице
+    const skip = (page - 1) * limit;
+
+    try {
+        // Получаем только студентов с пагинацией
+        const students = await User.find(
+            { role: 'student' }, // Условие: только студенты
+            'fullname email phone studentInfo' // Поля, которые нужно вернуть
+        )
+            .sort({ fullname: 1 }) // Сортируем по имени
+            .skip(skip)
+            .limit(limit);
+
+        // Подсчитываем общее количество студентов
+        const total = await User.countDocuments({ role: 'student' });
+
+        res.status(200).json({ students, total });
     } catch (error) {
-        res.status(500).json({ message: 'Ошибка при получении пользователей' });
+        console.error('Ошибка при получении студентов:', error);
+        res.status(500).json({
+            message: 'Ошибка при получении студентов',
+            error: error.message,
+        });
     }
 };
 
 const getAllStudent = async (req, res) => {
+    try {
+        const students = await User.find(
+            { role: 'student' }, // Условие: только студенты
+            'fullname email phone studentInfo'
+        ).sort({ fullname: 1 });
+        if (!students.length) {
+            return res.status(404).json({ message: 'Студенты не найдены' });
+        }
+        res.status(200).json({ students });
+    } catch (error) {
+        console.error('Ошибка при получении студентов:', error);
+        res.status(500).json({
+            message: 'Ошибка при получении студентов',
+            error: error.message,
+        });
+    }
+};
+const getAllTeacherManager = async (req, res) => {
+    try {
+        const users = await User.find({
+            role: { $in: ['teacher', 'manager', 'admin'] },
+        }).sort({
+            fullname: 1,
+        });
+        if (!users.length) {
+            return res.status(404).json({ message: 'Пользователи не найдены' });
+        }
+        res.status(200).json({ users });
+    } catch (error) {
+        console.error('Ошибка при получении пользователей:', error);
+        res.status(500).json({
+            message: 'Ошибка при получении пользователей',
+            error: error.message,
+        });
+    }
+};
+const getAllStudentInput = async (req, res) => {
     try {
         const students = await User.find(
             { role: 'student' }, // Условие: только студенты
@@ -222,6 +291,20 @@ const updateProfile = async (req, res) => {
     }
 };
 
+const updateUser = async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+            }
+        );
+        res.json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при обновлении пользователя' });
+    }
+};
 // Метод для смены
 const changePassword = async (req, res) => {
     try {
@@ -315,6 +398,15 @@ const getTeacherByID = async (req, res) => {
     }
 };
 
+const deleteUserById = async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Пользователь успешно удален' });
+    } catch (error) {
+        res.status(500).json({ message: 'Ошибка при удалении пользователя' });
+    }
+};
+
 module.exports = {
     getAllUsers,
     addUser,
@@ -327,4 +419,9 @@ module.exports = {
     getAllTeacher,
     getStudentById,
     getTeacherByID,
+    updateUser,
+    deleteUserById,
+    getAllStudentPages,
+    getAllStudentInput,
+    getAllTeacherManager,
 };

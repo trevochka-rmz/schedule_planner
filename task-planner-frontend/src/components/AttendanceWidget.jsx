@@ -2,33 +2,33 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AttendanceWidget.css';
 
-const AttendanceWidget = ({ studentId }) => {
-    const [lessons, setLessons] = useState([]);
+const AttendanceWidget = ({ studentId, lessons, setLessons }) => {
+    // const [lessons, setLessons] = useState([]);
     const [showLegend, setShowLegend] = useState(false);
 
-    useEffect(() => {
-        const fetchLessons = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                };
+    // useEffect(() => {
+    //     const fetchLessons = async () => {
+    //         try {
+    //             const token = localStorage.getItem('token');
+    //             const config = {
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`,
+    //                 },
+    //             };
 
-                const { data } = await axios.get(
-                    `http://localhost:5000/api/schedule/student/${studentId}`,
-                    config
-                );
-                console.log(data);
-                setLessons(data.lessons);
-            } catch (error) {
-                console.error('Ошибка при загрузке расписания:', error);
-            }
-        };
+    //             const { data } = await axios.get(
+    //                 `http://localhost:5000/api/schedule/student/${studentId}`,
+    //                 config
+    //             );
+    //             console.log(data);
+    //             setLessons(data.lessons);
+    //         } catch (error) {
+    //             console.error('Ошибка при загрузке расписания:', error);
+    //         }
+    //     };
 
-        fetchLessons();
-    }, [studentId]);
+    //     fetchLessons();
+    // }, [studentId]);
 
     const getStatusClass = (status) => {
         switch (status) {

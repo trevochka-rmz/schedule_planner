@@ -3,24 +3,26 @@ import Modal from 'react-modal';
 import Select from 'react-select';
 import axios from 'axios';
 import './AddRegularLessonModal.css';
+import { useParams } from 'react-router-dom';
 
 Modal.setAppElement('#root'); // Для обеспечения доступности
 
 function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
+    const { id: defaultStudentId } = useParams();
     const [formData, setFormData] = useState({
         teacherId: '',
-        studentId: '',
+        studentId: defaultStudentId || '',
         direction: '',
-        startTime: '',
-        duration: '',
-        location: '',
+        startTime: '10:00',
+        duration: '60',
+        location: 'онлайн',
         dayOfWeek: '',
         periodStart: '',
         periodEnd: '',
     });
-
     const [studentsOptions, setStudentsOptions] = useState([]);
     const [teachersOptions, setTeachersOptions] = useState([]);
+    const [error, setError] = useState(''); // Состояние для хранения текста ошибки
 
     useEffect(() => {
         const fetchTeachers = async () => {
@@ -38,7 +40,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             setTeachersOptions(teachers);
 
             // Автозаполнение текущего пользователя
-            const currentUserId = getCurrentUserIdFromToken(token); // Функция для получения ID из токена
+            const currentUserId = getCurrentUserIdFromToken(token);
             const currentUser = teachers.find((t) => t.value === currentUserId);
             if (currentUser) {
                 setFormData((prev) => ({
@@ -50,13 +52,23 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
 
         const fetchStudents = async () => {
             const response = await axios.get(
-                'http://localhost:5000/api/users/students'
+                'http://localhost:5000/api/users/all-students'
             );
             const students = response.data.map((student) => ({
                 label: student.fullname,
                 value: student._id,
             }));
             setStudentsOptions(students);
+        };
+
+        const getStudentInfo = async (studentId) => {
+            const response = await fetch(
+                `http://localhost:5000/api/users/student/${studentId}`
+            );
+            if (!response.ok)
+                throw new Error('Ошибка получения данных студента');
+            const student = await response.json();
+            return student.studentInfo;
         };
 
         fetchTeachers();
@@ -74,17 +86,16 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(''); // Сбрасываем ошибку перед запросом
         try {
-            console.log('Изначальные данные формы:', formData);
-
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
-            function convertToISOWithTime(dateString) {
+            const convertToISOWithTime = (dateString) => {
                 const date = new Date(dateString);
-                date.setUTCHours(9, 0, 0, 0); // Устанавливаем время 09:00:00.000 в UTC
+                date.setUTCHours(9, 0, 0, 0);
                 return date.toISOString();
-            }
+            };
 
             const requestData = {
                 ...formData,
@@ -92,22 +103,20 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
                 periodEnd: convertToISOWithTime(formData.periodEnd),
             };
 
-            console.log(
-                'Преобразованные данные:',
-                JSON.stringify(requestData, null, 2)
-            );
-
-            const response = await axios.post(
+            await axios.post(
                 'http://localhost:5000/api/regular/create',
                 requestData,
                 config
             );
 
-            console.log('Ответ сервера:', response.data);
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Ошибка при добавлении занятия:', error);
+            setError(
+                error.response?.data?.message ||
+                    'Произошла ошибка. Попробуйте снова.'
+            );
         }
     };
 
@@ -119,6 +128,8 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             overlayClassName="add-regular-lesson-overlay"
         >
             <h2>Добавить регулярное занятие</h2>
+            {error && <p className="error-message">{error}</p>}{' '}
+            {/* Отображение ошибки */}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Преподаватель:</label>
@@ -129,7 +140,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
                             (option) => option.value === formData.teacherId
                         )}
                         onChange={handleSelectChange}
-                        // isDisabled
+                        isDisabled
                     />
                 </div>
                 <div>
@@ -143,7 +154,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
                         onChange={handleSelectChange}
                         placeholder="Выберите студента"
                         required
-                        // isDisabled
+                        isDisabled
                     />
                 </div>
                 <div>
@@ -163,6 +174,8 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
                         name="startTime"
                         value={formData.startTime}
                         onChange={handleChange}
+                        min="09:00"
+                        max="23:00"
                         required
                     />
                 </div>
@@ -225,26 +238,6 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
                         />
                     </div>
                 </div>
-                {/* <div>
-                    <label>Дата начала:</label>
-                    <input
-                        type="date"
-                        name="periodStart"
-                        value={formData.periodStart}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Дата окончания:</label>
-                    <input
-                        type="date"
-                        name="periodEnd"
-                        value={formData.periodEnd}
-                        onChange={handleChange}
-                        required
-                    />
-                </div> */}
                 <div className="modal-buttons">
                     <button type="submit">Добавить</button>
                     <button type="button" onClick={onClose}>

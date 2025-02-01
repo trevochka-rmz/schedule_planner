@@ -61,7 +61,7 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
 
         const fetchStudents = async () => {
             const response = await axios.get(
-                'http://localhost:5000/api/users/students'
+                'http://localhost:5000/api/users/all-students'
             );
             const students = response.data.map((student) => ({
                 label: student.fullname,
@@ -167,13 +167,17 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
             onSubmit={handleSubmit}
         >
             {formType == 'add' ? (
-                <h2 className="form-title">Добавить занятие</h2>
+                <h2 className="lesson-form-title">Добавить занятие</h2>
             ) : formType == 'edit' ? (
-                <h2 className="form-title">Изменить запланированное занятие</h2>
+                <h2 className="lesson-form-title ">
+                    Изменить запланированное занятие
+                </h2>
             ) : formType == 'editMark' ? (
-                <h2 className="form-title">Изменить проведенное занятие</h2>
+                <h2 className="lesson-form-title ">
+                    Изменить проведенное занятие
+                </h2>
             ) : (
-                <h2 className="form-title">Провести занятие</h2>
+                <h2 className="lesson-form-title ">Провести занятие</h2>
             )}
 
             {errors.length > 0 && (

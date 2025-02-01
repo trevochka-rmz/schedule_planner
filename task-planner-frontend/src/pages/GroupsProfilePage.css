@@ -1,0 +1,103 @@
+.right-block-group-profile {
+    flex: 0 0 450px; /* Фиксированная ширина 300px */
+    display: flex;
+    flex-direction: column;
+    min-height: 700px; /* 100% высоты контейнера */
+    padding: 10px;
+    background-color: #fff;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    max-height: 1200px;
+    /* overflow-y: auto;  */
+}
+
+.left-block-page {
+    flex: 1;
+    display: flex;
+}
+
+.left-block-group {
+    display: flex;
+    background-color: #fff;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+}
+.header-list-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.header-list-group button {
+    /* padding: 8px 16px; */
+    margin-top: 10px;
+    height: 40px;
+    font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.main-block-info-group {
+    flex: 1;
+    padding-right: 20px;
+}
+.main-block-info-group p {
+    margin-top: -8px;
+}
+
+.additional-block-info-group {
+    position: absolute;
+    top: 52px;
+    right: 20px;
+    text-align: right;
+}
+.additional-block-info-group p {
+    margin-top: -8px;
+}
+.list-student-group {
+    margin-top: 20px;
+
+    background-color: #f9f9f9;
+    max-width: 600px;
+}
+
+.list-student-group h3 {
+    margin-bottom: 15px;
+    /* font-size: 1.5rem; */
+    color: #333;
+    /* font-weight: 600; */
+}
+
+.list-student-group ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.student-item {
+    /* font-size: 1.1rem; */
+    border-bottom: none;
+    /* color: #555; */
+    padding: 5px 0;
+    /* border-bottom: 1px solid #ddd; */
+}
+
+.student-item:last-child {
+    border-bottom: none;
+}
+.item-list-group {
+    display: flex;
+    justify-content: space-between;
+}

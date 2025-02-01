@@ -1,0 +1,37 @@
+.task-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Три равные колонки */
+    gap: 20px; /* Отступы между колонками */
+    margin-top: 20px;
+}
+
+.task-list-all,
+.task-list-pending,
+.task-list-completed {
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 560px;
+    overflow-y: scroll;
+}
+
+.task-list h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* .task-list .task-item {
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+} */

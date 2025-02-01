@@ -8,6 +8,7 @@ import {
     changeUserPassword,
     getTeacherSchedule,
 } from '../api/apiUser';
+import { notifySuccess, notifyError } from '../../utils/notification.js';
 
 const ProfilePage = () => {
     const [profile, setProfile] = useState({});
@@ -29,16 +30,14 @@ const ProfilePage = () => {
                 const { data } = await getUserProfile();
                 setProfile(data);
                 setFormData({
+                    // id: data._id,
+                    email: data.email || '',
                     fullname: data.fullname || '',
                     gender: data.teacherInfo?.gender || '',
-                    phone:
-                        data.teacherInfo?.contacts?.find(
-                            (contact) => contact.type === 'phone'
-                        )?.value || '',
+                    phone: data.phone || '',
                     birthDate: data.teacherInfo?.birthDate || '',
                 });
                 const scheduleResponse = await getTeacherSchedule(data._id);
-                console.log(scheduleResponse);
                 setSchedule(scheduleResponse.data.lessons);
             } catch (error) {
                 console.error('Ошибка загрузки данных профиля:', error);
@@ -57,12 +56,6 @@ const ProfilePage = () => {
                 fullname: formData.fullname, // Обновление основного имени
                 teacherInfo: {
                     gender: formData.gender, // Пол внутри teacherInfo
-                    contacts: [
-                        {
-                            type: 'phone',
-                            value: formData.phone, // Номер телефона внутри teacherInfo.contacts
-                        },
-                    ],
                 },
             };
 
@@ -73,17 +66,19 @@ const ProfilePage = () => {
                 setProfile((prevProfile) => ({
                     ...prevProfile,
                     fullname: formData.fullname,
+                    email: formData.email,
+                    phone: formData.phone,
                     teacherInfo: {
                         ...prevProfile.teacherInfo,
                         gender: formData.gender,
-                        contacts: updatedData.teacherInfo.contacts,
                     },
                 }));
                 setEditMode(false); // Выход из режима редактирования
-                console.log('Данные успешно обновлены!');
+                notifySuccess('Данные успешно обновлены!');
             }
         } catch (error) {
             console.error('Ошибка обновления профиля:', error);
+            notifyError('Ошибка, попробуйте снова');
         }
     };
 
@@ -96,11 +91,10 @@ const ProfilePage = () => {
             setError('Пароли не совпадают!');
             return;
         }
-        await handlePasswordChange(); // Вызываем метод для изменения пароля
+        await handlePasswordChange();
     };
 
     const handlePasswordChange = async () => {
-        // Проверка на длину нового пароля
         if (passwordData.newPassword.length < 6) {
             setError('Новый пароль должен содержать не менее 6 символов.');
             return;
@@ -113,7 +107,7 @@ const ProfilePage = () => {
             );
 
             if (response.status === 200) {
-                alert('Пароль успешно изменён!');
+                notifySuccess('Пароль успешно изменён!');
                 setError('');
                 setMessage('');
                 setPasswordData({
@@ -126,9 +120,11 @@ const ProfilePage = () => {
                 setError(
                     response.data.message || 'Не удалось изменить пароль.'
                 );
+                notifyError('Не удалось изменить пароль');
             }
         } catch (error) {
             setError(err.response?.data?.message || 'Ошибка изменения пароля.');
+            notifyError('Ошибка, попробуйте снова');
         }
     };
 
@@ -149,7 +145,6 @@ const ProfilePage = () => {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
-            console.log('Выбран файл:', selectedFile.name); // Для отладки
             setFile(selectedFile);
             handlePhotoUpload(selectedFile);
         }
@@ -158,20 +153,21 @@ const ProfilePage = () => {
         try {
             const { data } = await uploadUserPhoto(file);
             setProfile({ ...profile, urlPhoto: data.urlPhoto });
+            notifySuccess('Фото успешно обновлено');
         } catch (error) {
             console.error(
                 'Ошибка загрузки фотографии:',
                 error.response?.data || error.message
             );
             if (error.response?.status === 401) {
-                alert('Вы не авторизованы. Пожалуйста, войдите в систему.');
+                notifyError('Ошибка, попробуйте снова');
+                ('Вы не авторизованы. Пожалуйста, войдите в систему.');
             }
         }
     };
 
     return (
         <div className="profile-page">
-            {/* Левый блок */}
             <div className="left-block">
                 <div className="photo-block">
                     <img
@@ -205,12 +201,7 @@ const ProfilePage = () => {
                                 ? 'Мужской'
                                 : 'Женский'}
                         </p>
-                        <p>
-                            Телефон:{' '}
-                            {profile.teacherInfo?.contacts?.find(
-                                (c) => c.type === 'phone'
-                            )?.value || '—'}
-                        </p>
+                        <p>Телефон: {profile.phone || '—'}</p>
                     </div>
 
                     <button
@@ -243,13 +234,6 @@ const ProfilePage = () => {
                                     Женский
                                 </option>
                             </select>
-                            <input
-                                type="text"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                placeholder="Телефон"
-                            />
                             <label>
                                 <input
                                     type="checkbox"
@@ -317,18 +301,13 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Правый блок */}
             <div className="right-block">
                 <h3>Контакты</h3>
                 <table className="profile-table">
                     <tbody>
                         <tr>
                             <th>Телефон:</th>
-                            <td>
-                                {profile.teacherInfo?.contacts?.find(
-                                    (c) => c.type === 'phone'
-                                )?.value || '—'}
-                            </td>
+                            <td>{profile.phone || '—'}</td>
                         </tr>
                         <tr>
                             <th>Email:</th>
@@ -339,8 +318,6 @@ const ProfilePage = () => {
                 <h3>Проведено уроков</h3>
                 <p>{profile.teacherInfo?.lessonsGiven || 0}</p>
             </div>
-
-            {/* Секция расписания */}
             <div className="schedule-section">
                 <h3>Ближайшие уроки</h3>
                 {schedule.length > 0 ? (
@@ -348,8 +325,8 @@ const ProfilePage = () => {
                         {schedule
                             .sort(
                                 (a, b) => new Date(a.start) - new Date(b.start)
-                            ) // Сортировка по дате
-                            .slice(0, 5) // Берем только ближайшие 5 занятий
+                            )
+                            .slice(0, 5)
                             .map((lesson, index) => (
                                 <li key={index}>
                                     <strong>{lesson.title}</strong> <br />

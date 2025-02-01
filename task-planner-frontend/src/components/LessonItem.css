@@ -1,14 +1,3 @@
-.lesson-form-main {
-    background: #ffffff; /* Убедись, что фон формы — белый */
-    padding: 15px; /* Уменьшенный отступ */
-    border: none; /* Убираем любые границы */
-    border-radius: 8px; /* Оставляем скругление только для формы */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Если нужен тень */
-    max-width: 350px;
-    margin: auto;
-    font-family: 'Arial', sans-serif;
-}
-
 .form-group textarea {
     width: 97%;
     padding: 6px; /* Уменьшение внутреннего отступа */

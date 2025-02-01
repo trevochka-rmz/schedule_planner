@@ -47,6 +47,13 @@
     color: #555;
     margin-bottom: 2px;
 }
+.add-regular-lesson-modal textarea {
+    width: 97%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
 
 .add-regular-lesson-modal select {
     width: 100%;
@@ -106,6 +113,12 @@
 
 .add-regular-lesson-modal button[type='button']:hover {
     background-color: #e53935;
+}
+.error-message {
+    color: #d9534f;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
 /* Для мобильных устройств */

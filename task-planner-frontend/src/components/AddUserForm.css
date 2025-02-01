@@ -1,0 +1,139 @@
+.add-user-form-container {
+    /* max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif; */
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-label {
+    font-size: 16px;
+    color: #555;
+    /* margin-bottom: -2px; */
+}
+
+.form-input,
+.form-select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.form-input-phone .form-control {
+    width: 100% !important;
+    padding: 10px 12px !important;
+    font-size: 16px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    text-indent: 40px;
+}
+
+.form-input:focus,
+.form-select:focus {
+    border-color: #007bff;
+}
+
+.form-error {
+    color: #d9534f;
+    font-size: 14px;
+}
+
+.form-section {
+    margin-top: 1px;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-section-title {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-submit-button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    pointer-events: all;
+    z-index: 1000;
+}
+
+.form-submit-button:hover {
+    background-color: #0056b3;
+}
+.form-cancel-button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.form-cancel-button:hover {
+    background-color: rgb(171, 22, 27);
+}
+.form-checkbox-label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    gap: 8px; /* Расстояние между чекбоксом и текстом */
+}
+
+.form-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+.form-checkbox:checked {
+    background-color: #4caf50; /* Зеленый цвет для отмеченного состояния */
+    border-color: #4caf50;
+}

@@ -2,10 +2,9 @@ import React from 'react';
 import { NavLink } from 'react-router-dom'; // Для навигации между страницами
 import './SideBar.css'; // Подключим стили
 
-const Sidebar = () => {
+const Sidebar = ({ role }) => {
     return (
         <div className="sidebar">
-            <h2 className="sidebar-logo">Лого</h2>
             <nav className="sidebar-nav">
                 <NavLink
                     to="/profile"
@@ -47,6 +46,16 @@ const Sidebar = () => {
                 >
                     Группы
                 </NavLink>
+                {/* {role === 'manager' || role === 'admin' ? ( */}
+                <NavLink
+                    to="/add-user"
+                    className={({ isActive }) =>
+                        isActive ? 'sidebar-link active' : 'sidebar-link'
+                    }
+                >
+                    Пользователи
+                </NavLink>
+                {/* ) : null} */}
             </nav>
         </div>
     );

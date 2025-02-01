@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import '@fullcalendar/react'; // Импорт основного пакета FullCalendar
+import '@fullcalendar/react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { notifySuccess, notifyError } from '../../utils/notification.js';
 
-// Правильные пути для стилей
 import '@fullcalendar/common/main.css';
 
 import Modal from 'react-modal';
@@ -107,8 +107,10 @@ const SchedulePage = () => {
             ]);
             closeModal();
             await fetchSchedule();
+            notifySuccess('Занятие успешно добавлено');
         } catch (error) {
             console.error('Ошибка добавления занятия:', error);
+            notifyError('Ошибка, попробуйте снова');
         }
     };
 
@@ -150,15 +152,16 @@ const SchedulePage = () => {
 
             await fetchSchedule(); // Синхронизация данных с сервером
             closeModal();
+            notifySuccess('Занятие успешно обновлено');
         } catch (error) {
             console.error('Ошибка обновления занятия:', error);
-            alert(error.response?.data?.message || error.message);
+            notifyError('Ошибка, попробуйте снова');
         }
     };
 
     const handleRevert = async () => {
         if (!selectedEvent || !selectedEvent.id) {
-            alert('Не выбрано занятие для завершения');
+            notifyError('Не выбрано занятие для завершения');
             return;
         }
 
@@ -190,15 +193,16 @@ const SchedulePage = () => {
             );
 
             setSelectedEvent(null);
+            notifySuccess('Занятие успешно возвращено');
         } catch (error) {
             console.error('Ошибка изменения статуса урока:', error);
-            alert('Не удалось изменить статус урока');
+            notifyError('Не удалось изменить статус урока');
         }
     };
 
     const handleComplete = async (updatedLessonData) => {
         if (!selectedEvent || !selectedEvent.id) {
-            alert('Не выбрано занятие для завершения');
+            notifyError('Не выбрано занятие для завершения');
             return;
         }
 
@@ -263,20 +267,20 @@ const SchedulePage = () => {
 
             await fetchSchedule(); // Синхронизация данных с сервером
             closeModal();
+            notifySuccess('Занятие успешно проведено');
         } catch (error) {
             console.error('Ошибка обновления статуса:', error);
-            alert('Не удалось обновить статус занятия');
+            notifyError('Не удалось обновить статус занятия');
         }
     };
 
     const handleDelete = async () => {
         if (!selectedEvent || !selectedEvent.id) {
-            alert('Не выбрано занятие для удаления');
+            notifyError('Не выбрано занятие для удаления');
             return;
         }
 
         const lessonId = selectedEvent.id;
-        console.log('Удаление занятия с ID:', lessonId);
 
         try {
             const token = localStorage.getItem('token');
@@ -291,10 +295,11 @@ const SchedulePage = () => {
                 prevEvents.filter((event) => event.id !== lessonId)
             );
 
-            setSelectedEvent(null); // Закрываем LessonItem
+            setSelectedEvent(null);
+            notifySuccess('Занятие успешно удалено');
         } catch (error) {
             console.error('Ошибка удаления урока:', error);
-            alert(error.response?.data?.message || error.message);
+            notifyError('Ошибка, попробуйте снова');
         }
     };
 
@@ -311,15 +316,12 @@ const SchedulePage = () => {
             );
 
             const user = response.data;
-            if (user.role !== 'teacher') {
-                throw new Error('Доступ разрешен только преподавателям');
-            }
 
             setUserRole(user.role);
             setTeacherId(user._id);
         } catch (error) {
             console.error('Ошибка получения данных пользователя:', error);
-            alert(error.response?.data?.message || error.message);
+            notifyError('Ошибка, попробуйте снова');
         }
     };
 
@@ -328,7 +330,6 @@ const SchedulePage = () => {
             if (!teacherId) return;
 
             const token = localStorage.getItem('token');
-            console.log(teacherId);
             const response = await axios.get(
                 `http://localhost:5000/api/schedule/teacher/${teacherId}`,
                 {
@@ -344,11 +345,10 @@ const SchedulePage = () => {
                 color: lesson.status === 'completed' ? 'gray' : '#3788d8',
                 extendedProps: lesson.extendedProps,
             }));
-            console.log('Обработанные занятия:', lessons);
             setEvents(lessons);
         } catch (error) {
             console.error('Ошибка загрузки расписания:', error);
-            alert(error.response?.data?.message || error.message);
+            notifyError('Расписание не найдено');
         }
     };
 
@@ -363,22 +363,19 @@ const SchedulePage = () => {
             const schedulePage = document.querySelector('.schedule-page');
             const scheduleRect = schedulePage.getBoundingClientRect();
 
-            const fixedHeight = 200; // Фиксированная высота формы
-            const padding = 75; // Отступ от занятия
-            const offsetLeft = 90; // Смещение формы влево
+            const fixedHeight = 200;
+            const padding = 75;
+            const offsetLeft = 90;
 
             let positionTop =
                 rect.top - scheduleRect.top - fixedHeight - padding;
             let positionLeft = rect.left - scheduleRect.left - offsetLeft;
 
-            // Проверяем текущий режим календаря
-            const currentView = clickInfo.view.type; // Получаем текущий тип отображения
+            const currentView = clickInfo.view.type;
             if (currentView === 'timeGridDay' || currentView === 'dayGridDay') {
-                // Центрируем форму в режиме дня
-                positionLeft = (scheduleRect.width - 300) / 2; // Центрируем форму по ширине (300 - фиксированная ширина)
+                positionLeft = (scheduleRect.width - 300) / 2;
             }
 
-            // Проверяем, чтобы форма не выходила за верхнюю границу контейнера
             if (positionTop < 0) {
                 positionTop =
                     rect.top - scheduleRect.top + rect.height + padding;
@@ -387,7 +384,7 @@ const SchedulePage = () => {
             setEventPosition({
                 top: positionTop,
                 left: positionLeft,
-                width: 300, // Фиксированная ширина формы
+                width: 300,
             });
 
             setSelectedEvent(selectedEvent);
@@ -405,7 +402,7 @@ const SchedulePage = () => {
                 !event.target.classList.contains('fc-event') &&
                 (!lessonFormElement ||
                     !lessonFormElement.contains(event.target)) &&
-                !isEditing // Не сбрасывать, если в режиме редактирования
+                !isEditing
             ) {
                 setSelectedEvent(null);
             }
@@ -420,7 +417,6 @@ const SchedulePage = () => {
     useEffect(() => {
         const handleScroll = () => {
             if (!isEditing) {
-                // Не скрывать, если в режиме редактирования
                 setSelectedEvent(null);
             }
         };
@@ -435,7 +431,7 @@ const SchedulePage = () => {
     useEffect(() => {
         const initializePage = async () => {
             try {
-                await fetchUserProfile(); // Устанавливаем teacherId
+                await fetchUserProfile();
             } catch (error) {
                 console.error('Ошибка при загрузке страницы:', error);
             }

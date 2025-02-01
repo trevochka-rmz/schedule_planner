@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema(
     {
         fullname: { type: String, required: true },
-        email: { type: String, required: true, unique: true },
+        email: { type: String, sparse: true, default: '', unique: true },
+        login: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         urlPhoto: { type: String, default: '' },
         role: {
@@ -12,6 +13,7 @@ const userSchema = new mongoose.Schema(
             enum: ['student', 'teacher', 'manager', 'admin'],
             required: true,
         },
+        phone: { type: String, sparse: true, default: '', unique: true },
         contacts: [
             {
                 // Список контактов (телефон, email и т.д.)
@@ -41,6 +43,8 @@ const userSchema = new mongoose.Schema(
         },
         managerInfo: {
             department: { type: String },
+            birthDate: { type: Date },
+            gender: { type: String, enum: ['male', 'female'] },
             studentsAssigned: [
                 { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
             ],
@@ -49,9 +53,18 @@ const userSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+// Пользовательская валидация
+userSchema.pre('validate', function (next) {
+    if (!this.email && !this.phone) {
+        return next(
+            new Error('Необходимо указать либо email, либо номер телефона.')
+        );
+    }
+    next();
+});
+
 // Хэширование пароля перед сохранением
 userSchema.pre('save', async function (next) {
-    console.log('Password before hashing:', this.password);
     if (!this.isModified('password')) return next();
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

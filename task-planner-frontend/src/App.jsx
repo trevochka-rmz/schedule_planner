@@ -16,11 +16,17 @@ import LoginPage from './pages/LoginPage';
 import axios from 'axios';
 import './App.css';
 import StudentProfilePage from './pages/StudentProfilePage';
+import UserManagementPage from './pages/UserManagementPage';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import GroupsProfilePage from './pages/GroupsProfilePage';
 
 const App = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userName, setUserName] = useState('');
     const [profilePic, setProfilePic] = useState('');
+    const [userRole, setUserRole] = useState('');
+    const [userId, setUserId] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -42,9 +48,12 @@ const App = () => {
                     },
                 }
             );
+            console.log(data);
             setUserData({
+                userId: data._id,
                 userName: data.fullname,
                 profilePic: data.urlPhoto || 'https://via.placeholder.com/40',
+                userRole: data.role || 'none',
             });
         } catch (error) {
             console.error('Ошибка загрузки данных пользователя:', error);
@@ -52,13 +61,14 @@ const App = () => {
         }
     };
 
-    const setUserData = ({ userName, profilePic }) => {
+    const setUserData = ({ userName, profilePic, userRole, userId }) => {
+        setUserId(userId);
         setUserName(userName);
         setProfilePic(profilePic);
+        setUserRole(userRole);
     };
 
     const handleLogout = () => {
-        // Удаляем токен и сбрасываем состояние
         localStorage.removeItem('token');
         setIsAuthenticated(false);
         setUserName('');
@@ -91,17 +101,20 @@ const App = () => {
                     data.urlPhoto || 'https://via.placeholder.com/40'
                 );
                 setIsAuthenticated(true);
+                console.log(userId);
+                console.log(userRole);
             } catch (error) {
                 console.error('Ошибка получения данных пользователя:', error);
                 setIsAuthenticated(false);
             }
         };
-
+        console.log(userRole);
         fetchUser();
     }, []);
 
     return (
         <Router>
+            <ToastContainer />
             <div className="app-wrapper">
                 <Header
                     username={isAuthenticated ? userName : null}
@@ -111,7 +124,7 @@ const App = () => {
 
                 {isAuthenticated ? (
                     <div className="app-container">
-                        <SideBar />
+                        <SideBar role={userRole} />
                         <div className="content">
                             <Routes>
                                 <Route
@@ -126,14 +139,32 @@ const App = () => {
                                     path="/schedule"
                                     element={<SchedulePage />}
                                 />
-                                <Route path="/tasks" element={<TasksPage />} />
+                                <Route
+                                    path="/tasks"
+                                    element={
+                                        <TasksPage
+                                            teacherId={userId}
+                                            role={userRole}
+                                        />
+                                    }
+                                />
                                 <Route
                                     path="/groups"
                                     element={<GroupsPage />}
                                 />
                                 <Route
+                                    path="/groups/:id"
+                                    element={
+                                        <GroupsProfilePage role={userRole} />
+                                    }
+                                />
+                                <Route
                                     path="/students/:id"
                                     element={<StudentProfilePage />}
+                                />
+                                <Route
+                                    path="/add-user"
+                                    element={<UserManagementPage />}
                                 />
                                 <Route
                                     path="*"

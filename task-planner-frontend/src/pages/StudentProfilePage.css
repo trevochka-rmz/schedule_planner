@@ -30,19 +30,19 @@
 }
 
 .right-block-student-profile {
-    flex: 0 0 300px; /* Фиксированная ширина 300px */
+    flex: 0 0 400px; /* Фиксированная ширина 300px */
     display: flex;
     flex-direction: column;
-    height: 700px; /* 100% высоты контейнера */
-    overflow-y: auto; /* Добавляем прокрутку, если содержимого больше, чем высота */
+    min-height: 700px; /* 100% высоты контейнера */
     padding: 10px;
     background-color: #fff;
     box-sizing: border-box;
-    border-left: 1px solid #ccc; /* Разделительная линия */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     display: flex;
+    max-height: 1200px;
+    /* overflow-y: auto;  */
 }
 
 /* .profile-pic {
@@ -64,8 +64,44 @@
 .profile-table td {
     text-align: left;
     padding: 8px;
-    border-bottom: 1px solid #ccc;
+    /* border-bottom: 1px solid #ccc; */
 }
+
+.regular-lesson-block {
+    margin-top: 20px;
+}
+
+.regular-lesson-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.regular-lesson-block-header h3 {
+    margin: 0;
+    /* font-size: 1.5em; */
+}
+
+.regular-lesson-block-header button {
+    padding: 8px 16px;
+    font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.regular-lesson-block-header button:hover {
+    background-color: #0056b3;
+}
+
+.regular-lesson-list {
+    margin-top: 10px;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .student-profile-page {

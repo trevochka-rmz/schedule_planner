@@ -7,6 +7,8 @@ const { PORT, CLIENT_URL } = require('./config/keys'); // Импортируем
 const userRoutes = require('./routes/userRoutes'); // Роуты для пользователей
 const regularRoutes = require('./routes/regularRoutes'); // Роуты для регулярного занятия
 const scheduleRoutes = require('./routes/scheduleRoutes'); // Роуты для расписания
+const taskRoutes = require('./routes/taskRoutes'); // Роуты для задач
+const groupRoutes = require('./routes/groupRoutes');
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 const path = require('path');
 const syncLessonStats = require('./utils/syncMethods');
@@ -32,7 +34,9 @@ app.use(bodyParser.urlencoded({ extended: true })); // Для обработки
 // API Роуты
 app.use('/api/users', userRoutes); // Маршруты для пользователей
 app.use('/api/schedule', scheduleRoutes); // Маршруты для расписания
-app.use('/api/regular', regularRoutes);
+app.use('/api/regular', regularRoutes); // Маршруты для регулярных занятий
+app.use('/api/task', taskRoutes); // Маршруты для задач
+app.use('/api/group', groupRoutes); // Маршруты для групп
 
 // Главный маршрут (для проверки сервера)
 app.get('/', (req, res) => {

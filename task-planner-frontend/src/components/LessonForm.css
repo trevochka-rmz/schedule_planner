@@ -1,21 +1,22 @@
 /* Основное окно модального окна */
 .react-modal-content {
     background: #ffffff;
-    padding: 20px;
+    padding: 10px;
     border-radius: 8px;
-    width: 400px;
-    max-height: 60vh;
-    height: auto;
+    width: 100%; /* Занимает всю доступную ширину внутри overlay */
+    max-width: 550px; /* Ограничение максимальной ширины */
+    height: auto; /* Автоматическая высота формы */
     margin: auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     font-family: 'Arial', sans-serif;
     display: flex;
     flex-direction: column;
+    z-index: 1010; /* Убедитесь, что форма выше overlay */
 }
 
 /* Затенение фона при открытом модальном окне */
 .react-modal-overlay {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.5); /* Затенение */
     position: fixed;
     top: 0;
     left: 0;
@@ -23,34 +24,29 @@
     bottom: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    align-items: center; /* Центровка модального окна */
+    z-index: 1000; /* Overlay ниже контента модального окна */
 }
 
-.lesson-form-main h2 {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
-    text-align: center;
-    color: #333;
-}
-
+/* Стили для формы */
 .lesson-form-main {
-    position: fixed;
-    /* max-height: 80vh; */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    min-width: 600px;
-    gap: 3px;
+    background: #ffffff; /* Белый фон формы */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Занимает всю ширину внутри модального окна */
+    max-width: 500px; /* Ограничение ширины формы */
+    margin: auto;
+    height: 100%; /* Авто-высота для адаптации к содержимому */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
 }
 
-.lesson-form-main.mark {
-    max-height: 90vh;
-}
-
-.lesson-form-main.default {
-    max-height: 80vh;
+/* Убираем возможные лишние отступы и настройки */
+body {
+    overflow: hidden; /* Отключаем прокрутку страницы, пока открыто модальное окно */
 }
 
 .lesson-form-main label {
@@ -59,37 +55,32 @@
     font-weight: 600;
     color: #555;
     margin-bottom: 2px;
+    margin-top: -2px;
 }
-
-.lesson-form-main select {
+.lesson-form-title {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 8px;
+    margin-top: 5px;
+}
+.lesson-form-main input,
+.lesson-form-main select,
+.lesson-form-main textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
-}
-.lesson-form-main input {
-    width: 97%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-.lesson-form-main .form-row {
-    display: flex;
-    flex-direction: column;
+    box-sizing: border-box;
 }
 
-.lesson-form-main .period-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
+/* Кнопки */
 .lesson-form-main .modal-buttons {
     display: flex;
-    justify-content: space-between; /* Кнопка отмена справа */
+    justify-content: space-between;
     gap: 10px;
+    margin-top: 15px;
 }
 
 .lesson-form-main button {
@@ -99,7 +90,6 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 10px;
 }
 
 .lesson-form-main button[type='submit'] {
@@ -114,7 +104,6 @@
 .lesson-form-main button[type='button'] {
     background-color: #f44336;
     color: white;
-    margin-left: auto; /* Сдвиг кнопки отмена вправо */
 }
 
 .lesson-form-main button[type='button']:hover {
@@ -123,17 +112,23 @@
 
 /* Для мобильных устройств */
 @media (max-width: 768px) {
-    .add-regular-lesson-modal {
+    .react-modal-content {
+        width: 90%; /* Увеличиваем ширину модального окна */
         max-width: 90%;
-        padding: 15px;
+        height: auto; /* Высота адаптируется под содержимое */
+        padding: 15px; /* Уменьшаем внутренние отступы */
     }
 
-    .modal-buttons {
+    .lesson-form-main {
+        max-width: 100%; /* Форма занимает всю ширину окна */
+    }
+
+    .lesson-form-main .modal-buttons {
         flex-direction: column;
         gap: 8px;
     }
 
-    .modal-buttons button {
+    .lesson-form-main button {
         width: 100%;
     }
 }

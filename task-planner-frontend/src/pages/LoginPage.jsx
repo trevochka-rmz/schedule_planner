@@ -4,11 +4,11 @@ import axios from 'axios';
 import './LoginPage.css';
 
 const LoginPage = ({ setAuth, setUserData }) => {
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [message, setMessage] = useState(''); // Для отображения сообщения
-    const [isResettingPassword, setIsResettingPassword] = useState(false); // Состояние сброса пароля
+    const [message, setMessage] = useState('');
+    const [isResettingPassword, setIsResettingPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
@@ -16,7 +16,7 @@ const LoginPage = ({ setAuth, setUserData }) => {
         try {
             const { data } = await axios.post(
                 `http://localhost:5000/api/users/login`,
-                { email, password }
+                { identifier, password }
             );
             localStorage.setItem('token', data.token);
             setAuth(true);
@@ -36,7 +36,7 @@ const LoginPage = ({ setAuth, setUserData }) => {
         try {
             const { data } = await axios.post(
                 `http://localhost:5000/api/users/reset-password`,
-                { email }
+                { email: identifier } // Для сброса пароля по email
             );
             setMessage(data.message);
             setError('');
@@ -62,8 +62,8 @@ const LoginPage = ({ setAuth, setUserData }) => {
                         <input
                             type="email"
                             placeholder="Введите ваш email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
                             required
                         />
                         <button className="reset-button" type="submit">
@@ -79,10 +79,10 @@ const LoginPage = ({ setAuth, setUserData }) => {
                 ) : (
                     <form onSubmit={handleLogin}>
                         <input
-                            type="email"
-                            placeholder="Введите email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="text" // Меняем тип на text для поддержки email и логина
+                            placeholder="Введите email или логин"
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value)}
                             required
                         />
                         <input

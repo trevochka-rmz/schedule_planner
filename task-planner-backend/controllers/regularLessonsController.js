@@ -18,23 +18,24 @@ exports.getAllRefularLesson = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 exports.getRegularLessonByStudentId = async (req, res) => {
     try {
-        const studentId = req.params;
+        const { studentId } = req.params;
 
         const regularLessonsById = await RegularLesson.find({
             student: studentId,
         });
-        if (!regularLessonsById) {
+
+        if (!regularLessonsById || regularLessonsById.length === 0) {
             return res.status(404).json({
-                message: `Регулярные занятия пользователя ${studentId} не найдены`,
+                message: `Регулярные занятия для студента с ID ${studentId} не найдены`,
             });
         }
-        res.status(201).json(regularLessonsById);
+
+        res.status(200).json(regularLessonsById);
     } catch (error) {
         console.error(
-            'Ошибка при получения регулярных занятий пользователя:',
+            'Ошибка при получении регулярных занятий для студента:',
             error
         );
         res.status(500).json({ error: error.message });

@@ -401,25 +401,31 @@ const updateLessonStatus = async (req, res) => {
         await lesson.save();
 
         // Обновляем статистику, если статус изменился
-        if (previousStatus !== status) {
-            if (previousStatus === 'completed' && status !== 'completed') {
-                // Урок был завершен, но теперь отменен или перенесен
+        if (previousStatus === 'completed' && status !== 'completed') {
+            // Урок был завершен, но теперь отменен или перенесен
+            if (lesson.student) {
                 await User.findByIdAndUpdate(lesson.student, {
                     $inc: { 'studentInfo.lessonsCompleted': -1 },
                     $inc: { 'studentInfo.lessonsRemaining': 1 },
                 });
+            }
+            if (lesson.teacher) {
                 await User.findByIdAndUpdate(lesson.teacher, {
                     $inc: { 'teacherInfo.lessonsGiven': -1 },
                 });
-            } else if (
-                previousStatus !== 'completed' &&
-                status === 'completed'
-            ) {
-                // Урок завершен
-                await User.findByIdAndUpdate(lesson.student, {
-                    $inc: { 'studentInfo.lessonsCompleted': 1 },
-                    $inc: { 'studentInfo.lessonsRemaining': -1 },
-                });
+            }
+        } else if (previousStatus !== 'completed' && status === 'completed') {
+            // Урок завершен
+            if (lesson.student) {
+                const student = await User.findById(lesson.student);
+                if (student.studentInfo.lessonsRemaining > 0) {
+                    await User.findByIdAndUpdate(lesson.student, {
+                        $inc: { 'studentInfo.lessonsCompleted': 1 },
+                        $inc: { 'studentInfo.lessonsRemaining': -1 },
+                    });
+                }
+            }
+            if (lesson.teacher) {
                 await User.findByIdAndUpdate(lesson.teacher, {
                     $inc: { 'teacherInfo.lessonsGiven': 1 },
                 });

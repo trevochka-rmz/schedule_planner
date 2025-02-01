@@ -11,7 +11,12 @@ const {
     resetPassword,
     getAllTeacher,
     getTeacherByID,
+    updateUser,
+    deleteUserById,
+    getAllStudentPages,
     getStudentById,
+    getAllTeacherManager,
+    getAllStudentInput,
 } = require('../controllers/userController');
 const { protect, roleCheck } = require('../middlewares/authMiddleware');
 const { upload } = require('../middlewares/multer');
@@ -26,8 +31,8 @@ const router = express.Router();
 // Маршруты для авторизации и регистрации
 router.post(
     '/register',
-    validateUserRegistration,
-    handleValidationErrors,
+    // validateUserRegistration,
+    // handleValidationErrors,
     registerUser
 ); // Регистрация пользователя
 router.post('/login', loginUser); // Авторизация пользователя
@@ -39,8 +44,15 @@ router.post('/profile/photo', protect, upload.single('photo'), uploadPhoto); // 
 router.put('/profile', protect, updateProfile);
 router.post('/change-password', protect, changePassword);
 
-router.get('/students', getAllStudent); // Получение всех студентов
+router.put('/profile/:id', updateUser); // Обновление данных у пользователя
+router.delete('/profile/:id', deleteUserById); // Удаление пользователя
+
+router.get('/students', getAllStudentPages); // Получение всех студентов
+router.get('/students-all', getAllStudent); // Получение всех студентов
+router.get('/all-students', getAllStudentInput); // Получение всех студентов
 router.get('/teachers', getAllTeacher); // Получение всех преподавателей
+
+router.get('/teacher-manager', getAllTeacherManager); // Получение всех, кроме студентов
 
 router.get('/student/:id', getStudentById); // Получение студента по id
 router.get('/teacher/:id', getTeacherByID); // Получение студента по id

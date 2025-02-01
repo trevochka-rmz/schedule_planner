@@ -9,9 +9,6 @@ const validateUserRegistration = [
         .isLength({ min: 3 })
         .withMessage('Имя должно содержать не менее 3 символов'),
     check('email').isEmail().withMessage('Некорректный формат email'),
-    check('password')
-        .isLength({ min: 6 })
-        .withMessage('Пароль должен содержать не менее 6 символов'),
     check('role')
         .isIn(['student', 'teacher', 'manager', 'admin'])
         .withMessage('Некорректная роль'),
