@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import axios from 'axios';
-import './AddRegularLessonModal.css';
+import './AddRegularGroupLessonModal.css';
 import { useParams } from 'react-router-dom';
 
 Modal.setAppElement('#root'); // Для обеспечения доступности
 
-function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
-    const { id: defaultStudentId } = useParams();
+function AddRegularGroupLessonModal({ isOpen, onClose, onSuccess }) {
+    const { id: defaultGroupId } = useParams();
     const [formData, setFormData] = useState({
         teacherId: '',
-        studentId: defaultStudentId || '',
+        groupId: defaultGroupId || '',
         direction: '',
         startTime: '10:00',
         duration: '60',
@@ -20,7 +20,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
         periodStart: '',
         periodEnd: '',
     });
-    const [studentsOptions, setStudentsOptions] = useState([]);
+    const [groupOptions, setGroupOptions] = useState([]);
     const [teachersOptions, setTeachersOptions] = useState([]);
     const [error, setError] = useState(''); // Состояние для хранения текста ошибки
 
@@ -39,7 +39,6 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             }));
             setTeachersOptions(teachers);
 
-            // Автозаполнение текущего пользователя
             const currentUserId = getCurrentUserIdFromToken(token);
             const currentUser = teachers.find((t) => t.value === currentUserId);
             if (currentUser) {
@@ -50,30 +49,20 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             }
         };
 
-        const fetchStudents = async () => {
+        const fetchGroups = async () => {
             const response = await axios.get(
-                'http://localhost:5000/api/users/all-students'
+                'http://localhost:5000/api/group/groups'
             );
-
-            const students = response.data.map((student) => ({
-                label: student.fullname,
-                value: student._id,
+            console.log(response.data.groups);
+            const groups = response.data.groups.map((group) => ({
+                label: group.name,
+                value: group._id,
             }));
-            setStudentsOptions(students);
-        };
-
-        const getStudentInfo = async (studentId) => {
-            const response = await fetch(
-                `http://localhost:5000/api/users/student/${studentId}`
-            );
-            if (!response.ok)
-                throw new Error('Ошибка получения данных студента');
-            const student = await response.json();
-            return student.studentInfo;
+            setGroupOptions(groups);
         };
 
         fetchTeachers();
-        fetchStudents();
+        fetchGroups();
     }, []);
 
     const handleSelectChange = (selectedOption, actionMeta) => {
@@ -105,7 +94,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             };
 
             await axios.post(
-                'http://localhost:5000/api/regular/create',
+                'http://localhost:5000/api/regular/create-group',
                 requestData,
                 config
             );
@@ -113,7 +102,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             onSuccess();
             onClose();
         } catch (error) {
-            console.error('Ошибка при добавлении занятия:', error);
+            console.error('Ошибка при добавлении группы:', error);
             setError(
                 error.response?.data?.message ||
                     'Произошла ошибка. Попробуйте снова.'
@@ -128,7 +117,7 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
             className="add-regular-lesson-modal"
             overlayClassName="add-regular-lesson-overlay"
         >
-            <h2>Добавить регулярное занятие</h2>
+            <h2>Добавить регулярное групповое занятие</h2>
             {error && <p className="error-message">{error}</p>}{' '}
             {/* Отображение ошибки */}
             <form onSubmit={handleSubmit}>
@@ -145,15 +134,15 @@ function AddRegularLessonModal({ isOpen, onClose, onSuccess }) {
                     />
                 </div>
                 <div>
-                    <label>Студент:</label>
+                    <label>Группа:</label>
                     <Select
-                        options={studentsOptions}
-                        name="studentId"
-                        value={studentsOptions.find(
-                            (option) => option.value === formData.studentId
+                        options={groupOptions}
+                        name="groupId"
+                        value={groupOptions.find(
+                            (option) => option.value === formData.groupId
                         )}
                         onChange={handleSelectChange}
-                        placeholder="Выберите студента"
+                        placeholder="Выберите группу"
                         required
                         isDisabled
                     />
@@ -260,4 +249,4 @@ const getCurrentUserIdFromToken = (token) => {
     }
 };
 
-export default AddRegularLessonModal;
+export default AddRegularGroupLessonModal;

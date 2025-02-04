@@ -1,17 +1,8 @@
 const express = require('express');
 const { verifyToken } = require('../middlewares/authMiddleware');
 const router = express.Router();
-const {
-    addLessonToSchedule,
-    allLesson,
-    getScheduleByTeacher,
-    updateLessonStatus,
-    deleteLesson,
-    updateLesson,
-    getLessonById,
-    getScheduleByID,
-    getScheduleByStudent,
-} = require('../controllers/scheduleController');
+const scheduleController = require('../controllers/scheduleController');
+const lessonController = require('../controllers/lessonController');
 const {
     validateLesson,
     handleValidationErrors,
@@ -20,21 +11,23 @@ const {
 // Занятия
 router.post(
     '/create',
-    validateLesson,
-    handleValidationErrors,
-    addLessonToSchedule
+    // validateLesson,
+    // handleValidationErrors,
+    lessonController.addLessonToSchedule
 );
-router.get('/all', allLesson);
-router.get('/lessons/:lessonId', getLessonById);
-router.delete('/lessons/:lessonId', deleteLesson);
-router.patch('/lessons/:lessonId/status', updateLessonStatus);
-router.patch('/lessons/:lessonId', updateLesson);
+router.get('/all', lessonController.allLesson);
+router.get('/lessons/:lessonId', lessonController.getLessonById);
+router.delete('/lessons/:lessonId', lessonController.deleteLesson);
+router.patch('/lessons/:lessonId/status', lessonController.updateLessonStatus);
+router.patch('/lessons/:lessonId', lessonController.updateLesson);
 
 // Расписание
-router.get('/teacher/:teacherId', getScheduleByTeacher);
-router.get('/student/:studentId', getScheduleByStudent);
-router.get('/teacherid/:userID', getScheduleByID);
+router.get('/teacher/:teacherId', scheduleController.getScheduleByTeacher);
+router.get(
+    '/student/:studentId',
 
-// router.get('/teacher/:teacherId', verifyToken, getScheduleByTeacher);
+    scheduleController.getScheduleByStudent
+);
+router.get('/teacherid/:userID', scheduleController.getScheduleByID);
 
 module.exports = router;

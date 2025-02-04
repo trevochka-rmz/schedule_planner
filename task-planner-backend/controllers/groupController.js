@@ -17,15 +17,12 @@ exports.createGroup = async (req, res) => {
             location,
         } = req.body;
 
-        // Проверка, существует ли указанный преподаватель
         const teacherExists = await User.findById(teacher);
         if (!teacherExists || teacherExists.role !== 'teacher') {
             return res
                 .status(400)
                 .json({ message: 'Некорректный преподаватель' });
         }
-
-        // Проверка студентов
         const validStudents = await User.find({
             _id: { $in: students },
             role: 'student',
@@ -35,7 +32,6 @@ exports.createGroup = async (req, res) => {
                 .status(400)
                 .json({ message: 'Некорректные студенты в группе' });
         }
-
         const newGroup = new Group({
             name,
             teacher,
@@ -131,31 +127,25 @@ exports.deleteGroup = async (req, res) => {
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 };
+
 // Добавление студента в группу
 exports.addStudentToGroup = async (req, res) => {
     try {
         const { groupId, studentId } = req.params;
 
-        // Проверка существования группы
         const group = await Group.findById(groupId);
         if (!group) {
             return res.status(404).json({ message: 'Группа не найдена' });
         }
-
-        // Проверка существования студента
         const student = await User.findById(studentId);
         if (!student || student.role !== 'student') {
             return res.status(400).json({ message: 'Некорректный студент' });
         }
-
-        // Проверка, если студент уже в группе
         if (group.students.includes(studentId)) {
             return res
                 .status(400)
                 .json({ message: 'Студент уже находится в группе' });
         }
-
-        // Добавление студента
         group.students.push(studentId);
         await group.save();
 
@@ -173,21 +163,16 @@ exports.addStudentToGroup = async (req, res) => {
 exports.removeStudentFromGroup = async (req, res) => {
     try {
         const { groupId, studentId } = req.params;
-
-        // Проверка существования группы
         const group = await Group.findById(groupId);
         if (!group) {
             return res.status(404).json({ message: 'Группа не найдена' });
         }
-
-        // Проверка, если студента нет в группе
         if (!group.students.includes(studentId)) {
             return res
                 .status(400)
                 .json({ message: 'Студент не найден в группе' });
         }
 
-        // Удаление студента
         group.students = group.students.filter(
             (id) => id.toString() !== studentId
         );
@@ -214,6 +199,7 @@ exports.getGroups = async (req, res) => {
     }
 };
 
+// Получения групп с пагинацией
 exports.getAllGroupPages = async (req, res) => {
     const page = parseInt(req.query.page) || 1; // Текущая страница
     const limit = parseInt(req.query.limit) || 8; // Количество записей на странице

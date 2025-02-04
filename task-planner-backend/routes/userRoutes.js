@@ -1,66 +1,40 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/authController');
-const {
-    getUserProfile,
-    getAllUsers,
-    addUser,
-    getAllStudent,
-    uploadPhoto,
-    updateProfile,
-    changePassword,
-    resetPassword,
-    getAllTeacher,
-    getTeacherByID,
-    updateUser,
-    deleteUserById,
-    getAllStudentPages,
-    getStudentById,
-    getAllTeacherManager,
-    getAllStudentInput,
-} = require('../controllers/userController');
-const { protect, roleCheck } = require('../middlewares/authMiddleware');
+const authController = require('../controllers/authController');
+const userController = require('../controllers/userController');
+const teacherController = require('../controllers/teacherController');
+const studentController = require('../controllers/studentController');
+const { protect } = require('../middlewares/authMiddleware');
 const { upload } = require('../middlewares/multer');
-const {
-    validateUserRegistration,
-    validateLesson,
-    handleValidationErrors,
-} = require('../utils/validators');
 
 const router = express.Router();
 
 // Маршруты для авторизации и регистрации
-router.post(
-    '/register',
-    // validateUserRegistration,
-    // handleValidationErrors,
-    registerUser
-); // Регистрация пользователя
-router.post('/login', loginUser); // Авторизация пользователя
-router.post('/reset-password', resetPassword); // Сброс пароля
+router.post('/register', authController.registerUser);
+router.post('/login', authController.loginUser);
+router.post('/reset-password', protect, authController.resetPassword);
+router.post('/change-password', protect, authController.changePassword);
 
 // Маршруты для работы с профилем пользователя
-router.get('/profile', protect, getUserProfile); // Получение профиля авторизованного пользователя
-router.post('/profile/photo', protect, upload.single('photo'), uploadPhoto); // Маршрут для загрузки фотографии
-router.put('/profile', protect, updateProfile);
-router.post('/change-password', protect, changePassword);
+router.get('/profile', protect, userController.getUserProfile);
+router.post(
+    '/profile/photo',
+    protect,
+    upload.single('photo'),
+    userController.uploadPhoto
+);
+router.put('/profile', protect, userController.updateProfile);
+router.put('/profile/:id', userController.updateUser);
+router.delete('/profile/:id', userController.deleteUserById);
 
-router.put('/profile/:id', updateUser); // Обновление данных у пользователя
-router.delete('/profile/:id', deleteUserById); // Удаление пользователя
+// Методы получения конкретных пользователей
+router.get('/students', studentController.getAllStudentPages);
+router.get('/students-all', studentController.getAllStudents);
+router.get('/all-students', studentController.getAllStudentInput);
+router.get('/teachers', teacherController.getAllTeachers);
+router.get('/teacher-manager', userController.getAllTeacherManager);
+router.get('/student/:id', studentController.getStudentById);
+router.get('/teacher/:id', teacherController.getTeacherById);
 
-router.get('/students', getAllStudentPages); // Получение всех студентов
-router.get('/students-all', getAllStudent); // Получение всех студентов
-router.get('/all-students', getAllStudentInput); // Получение всех студентов
-router.get('/teachers', getAllTeacher); // Получение всех преподавателей
-
-router.get('/teacher-manager', getAllTeacherManager); // Получение всех, кроме студентов
-
-router.get('/student/:id', getStudentById); // Получение студента по id
-router.get('/teacher/:id', getTeacherByID); // Получение студента по id
-
-// Административные маршруты
-router.get('/all', getAllUsers); // Получение всех пользователей (для администратора)
-
-//router.post('/add', protect, roleCheck(['admin']), addUser); // Добавление нового пользователя (например, учителя или ученика)
-router.post('/add', addUser); // Добавление нового пользователя (например, учителя или ученика)
+router.get('/all', userController.getAllUsers);
 
 module.exports = router;

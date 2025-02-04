@@ -1,143 +1,315 @@
-/* Общие стили для формы */
-.lesson-form-main {
-    background-color: #ffffff;
-    padding: 15px;
-    /* border-radius: 8px; */
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
-    max-width: 500px;
-    margin: 10px auto;
-    font-family: 'Arial', sans-serif;
-    color: #333;
-}
+exports.getScheduleByTeacher = async (req, res) => {
+    try {
+        const { teacherId } = req.params;
+        const schedule = await Schedule.findOne({ teacher: teacherId })
+            .populate({
+                path: 'lessons.lessonId',
+                populate: [
+                    {
+                        path: 'teacher',
+                        select: 'fullname email',
+                        options: { lean: true },
+                    },
+                    {
+                        path: 'student',
+                        select: 'fullname email',
+                        options: { lean: true },
+                        strictPopulate: false,
+                    },
+                    {
+                        path: 'group',
+                        select: 'name day direction students',
+                        options: { lean: true },
+                        strictPopulate: false,
+                        populate: {
+                            path: 'students',
+                            select: 'fullname direction _id', // Теперь у студентов будет fullname и email
+                            options: { lean: true },
+                        },
+                    },
+                ],
+            })
+            .lean();
+        if (!schedule) {
+            console.error(
+                `Расписание не найдено для преподавателя с ID: ${teacherId}`
+            );
+            return res.status(404).json({ message: 'Расписание не найдено' });
+        }
 
-.form-title {
-    font-size: 15px;
-    font-weight: bold;
-    margin-bottom: 9px;
-    color: #444;
-    text-align: center;
-}
+        // Форматируем данные
+        const formattedLessons = schedule.lessons
+            .map(({ lessonId, lessonType }) => {
+                try {
+                    let startDate;
 
-/* Поля ввода и селекторы */
-.form-group {
-    margin-bottom: 10px;
-}
+                    // Определяем тип `lesson.date`
+                    if (typeof lessonId.date === 'string') {
+                        // Если `lesson.date` — это строка
+                        if (lessonId.date.includes('T')) {
+                            startDate = new Date(lessonId.date); // ISO-формат
+                        } else {
+                            // Если `lesson.date` — это дата без времени
+                            startDate = new Date(
+                                `${lessonId.date}T${lessonId.time}`
+                            );
+                        }
+                    } else if (lessonId.date instanceof Date) {
+                        // Если `lesson.date` — это объект Date
+                        startDate = new Date(
+                            `${lessonId.date.toISOString().split('T')[0]}T${
+                                lessonId.time
+                            }`
+                        );
+                    } else {
+                        throw new Error(
+                            `Некорректный формат даты: ${lessonId.date}`
+                        );
+                    }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 12px;
-    color: #555;
-}
-input[type='text'],
-input[type='date'],
-input[type='time'],
-input[type='number'],
-textarea {
-    width: 96%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 12px;
-    color: #333;
-    outline: none;
-    transition: border-color 0.2s ease-in-out;
-}
+                    // Проверяем корректность времени
+                    if (isNaN(startDate.getTime())) {
+                        throw new Error(
+                            `Некорректное время: ${lessonId.date}T${lessonId.time}`
+                        );
+                    }
+                    // Рассчитываем endDate
+                    const endDate = new Date(
+                        startDate.getTime() + (lessonId.duration || 0) * 60000
+                    );
+                    if (lessonType === 'Lesson') {
+                        return {
+                            id: lessonId._id,
+                            title: `${lessonId.direction} (${
+                                lessonId.student?.fullname || 'Без имени'
+                            })`,
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                            status: lessonId.status,
+                            extendedProps: {
+                                studentID:
+                                    lessonId.student?._id ||
+                                    'Неизвестный ID студент',
+                                teacherID:
+                                    lessonId.teacher?._id ||
+                                    'Неизвестный ID преподаватель',
+                                student:
+                                    lessonId.student?.fullname ||
+                                    'Неизвестный студент',
+                                teacher:
+                                    lessonId.teacher?.fullname ||
+                                    'Неизвестный преподаватель',
+                                direction: lessonId.direction || 'Не указано',
+                                theme: lessonId.theme || '',
+                                comment: lessonId.comment || 'Не указано',
+                                commentAfter: lessonId.commentAfter || '',
+                            },
+                        };
+                    } else if (lessonType === 'GroupLesson') {
+                        return {
+                            id: lessonId._id,
+                            title: lessonId.group?.name || 'Без имени',
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                            status: lessonId.status,
+                            extendedProps: {
+                                studentIDs:
+                                    lessonId.group.students?.map(
+                                        (student) => student._id
+                                    ) || [],
+                                teacherID:
+                                    lessonId.teacher?._id ||
+                                    'Неизвестный ID преподаватель',
+                                students: lessonId.group.students?.map(
+                                    (student) => student.fullname
+                                ) || ['Неизвестные студенты'],
+                                teacher:
+                                    lessonId.teacher?.fullname ||
+                                    'Неизвестный преподаватель',
+                                direction:
+                                    lessonId.group.direction || 'Не указано',
+                                theme: lessonId.theme || '',
+                                comment: lessonId.comment || 'Не указано',
+                                commentAfter: lessonId.commentAfter || '',
+                            },
+                        };
+                    }
+                } catch (error) {
+                    console.error(
+                        `Ошибка форматирования урока с ID: ${lessonId._id}`,
+                        error.message
+                    );
+                    return null; // Пропускаем ошибочные уроки
+                }
+            })
+            .filter(Boolean); // Убираем null-значения
 
-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 12px;
-    color: #333;
-    outline: none;
-    transition: border-color 0.2s ease-in-out;
-}
+        res.status(200).json({ lessons: formattedLessons });
+    } catch (error) {
+        console.error('Ошибка сервера при получении расписания:', error);
+        res.status(500).json({
+            message: 'Ошибка сервера',
+            error: error.message,
+        });
+    }
+};
 
-input[type='text']:focus,
-input[type='date']:focus,
-input[type='time']:focus,
-input[type='number']:focus,
-textarea:focus,
-select:focus {
-    border-color: #007bff;
-}
+exports.getScheduleByStudent = async (req, res) => {
+    try {
+        const { studentId } = req.params;
 
-/* Селектор react-select */
-/* .css-2b097c-container {
-    font-size: 12px;
-    color: #333;
-} */
-.select-user {
-    font-size: 13px;
-}
+        // Проверяем, существует ли расписание
+        const scheduleStudent = await ScheduleStudent.findOne({
+            student: studentId,
+        }).populate({
+            path: 'lessons.lessonId',
+            populate: [
+                {
+                    path: 'teacher',
+                    select: 'fullname email',
+                    options: { lean: true },
+                },
+                {
+                    path: 'student',
+                    select: 'fullname email',
+                    options: { lean: true },
+                    strictPopulate: false,
+                },
+                {
+                    path: 'group',
+                    select: 'name day direction students',
+                    options: { lean: true },
+                    strictPopulate: false,
+                    populate: {
+                        path: 'students',
+                        select: 'fullname _id',
+                        options: { lean: true },
+                    },
+                },
+            ],
+        });
+        if (!scheduleStudent) {
+            console.error(
+                `Расписание не найдено для студента с ID: ${studentId}`
+            );
+            return res.status(404).json({ message: 'Расписание не найдено' });
+        }
 
-.css-1okebmr-indicatorSeparator {
-    display: none;
-}
+        // Форматируем данные
+        const formattedLessons = scheduleStudent.lessons
+            .map(({ lessonId, lessonType }) => {
+                try {
+                    let startDate;
 
-/* Текстовые поля */
-textarea {
-    resize: none;
-    height: 60px;
-}
+                    // Определяем тип `lesson.date`
+                    if (typeof lessonId.date === 'string') {
+                        // Если `lesson.date` — это строка
+                        if (lessonId.date.includes('T')) {
+                            startDate = new Date(lessonId.date); // ISO-формат
+                        } else {
+                            // Если `lesson.date` — это дата без времени
+                            startDate = new Date(
+                                `${lessonId.date}T${lessonId.time}`
+                            );
+                        }
+                    } else if (lessonId.date instanceof Date) {
+                        // Если `lesson.date` — это объект Date
+                        startDate = new Date(
+                            `${lessonId.date.toISOString().split('T')[0]}T${
+                                lessonId.time
+                            }`
+                        );
+                    } else {
+                        throw new Error(
+                            `Некорректный формат даты: ${lessonId.date}`
+                        );
+                    }
 
-/* Ошибки */
-.error-messages {
-    background-color: #ffe6e6;
-    border: 1px solid #ffcccc;
-    padding: 8px;
-    border-radius: 5px;
-    color: #d8000c;
-    margin-bottom: 10px;
-    font-size: 12px;
-}
+                    // Проверяем корректность времени
+                    if (isNaN(startDate.getTime())) {
+                        throw new Error(
+                            `Некорректное время: ${lessonId.date}T${lessonId.time}`
+                        );
+                    }
+                    // Рассчитываем endDate
+                    const endDate = new Date(
+                        startDate.getTime() + (lessonId.duration || 0) * 60000
+                    );
 
-.error-messages ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
+                    if (lessonType === 'Lesson') {
+                        return {
+                            id: lessonId._id,
+                            title: `${lessonId.direction} (${
+                                lessonId.student?.fullname || 'Без имени'
+                            })`,
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                            status: lessonId.status,
+                            extendedProps: {
+                                studentID:
+                                    lessonId.student?._id ||
+                                    'Неизвестный ID студент',
+                                teacherID:
+                                    lessonId.teacher?._id ||
+                                    'Неизвестный ID преподаватель',
+                                student:
+                                    lessonId.student?.fullname ||
+                                    'Неизвестный студент',
+                                teacher:
+                                    lessonId.teacher?.fullname ||
+                                    'Неизвестный преподаватель',
+                                direction: lessonId.direction || 'Не указано',
+                                theme: lessonId.theme || '',
+                                comment: lessonId.comment || 'Не указано',
+                                commentAfter: lessonId.commentAfter || '',
+                            },
+                        };
+                    } else if (lessonType === 'GroupLesson') {
+                        return {
+                            id: lessonId._id,
+                            title: `${lessonId.direction} (${
+                                lessonId.student?.fullname || 'Без имени'
+                            })`,
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                            status: lessonId.status,
+                            extendedProps: {
+                                studentID:
+                                    lessonId.student?._id ||
+                                    'Неизвестный ID студент',
+                                teacherID:
+                                    lessonId.teacher?._id ||
+                                    'Неизвестный ID преподаватель',
+                                student:
+                                    lessonId.student?.fullname ||
+                                    'Неизвестный студент',
+                                teacher:
+                                    lessonId.teacher?.fullname ||
+                                    'Неизвестный преподаватель',
+                                direction: lessonId.direction || 'Не указано',
+                                theme: lessonId.theme || '',
+                                comment: lessonId.comment || 'Не указано',
+                                commentAfter: lessonId.commentAfter || '',
+                            },
+                        };
+                    }
+                } catch (error) {
+                    console.error(
+                        `Ошибка форматирования урока с ID: ${lessonId._id}`,
+                        error.message
+                    );
+                    return null; // Пропускаем ошибочные уроки
+                }
+            })
+            .filter(Boolean); // Убираем null-значения
 
-.error-messages li {
-    font-size: 12px;
-}
+        res.status(200).json({ lessons: formattedLessons });
+    } catch (error) {
+        console.error('Ошибка сервера при получении расписания:', error);
+        res.status(500).json({
+            message: 'Ошибка сервера',
+            error: error.message,
+        });
+    }
+};
 
-/* Кнопки */
-.form-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-}
-
-button[type='submit'] {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
-
-button[type='submit']:hover {
-    background-color: #0056b3;
-}
-
-.cancel-button {
-    background-color: #ddd;
-    color: #555;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.cancel-button:hover {
-    background-color: #bbb;
-}

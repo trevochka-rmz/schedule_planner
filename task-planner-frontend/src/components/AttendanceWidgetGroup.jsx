@@ -2,8 +2,16 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './AttendanceWidget.css';
 
-const AttendanceWidget = ({ studentId, lessons, setLessons }) => {
-    // const [lessons, setLessons] = useState([]);
+const AttendanceGroupWidget = ({ groupId, lessons, setLessons }) => {
+    const daysOfWeek = {
+        Monday: 'Понедельник',
+        Tuesday: 'Вторник',
+        Wednesday: 'Среда',
+        Thursday: 'Четверг',
+        Friday: 'Пятница',
+        Saturday: 'Суббота',
+        Sunday: 'Воскресенье',
+    };
     const [showLegend, setShowLegend] = useState(false);
 
     const getStatusClass = (status) => {
@@ -21,7 +29,7 @@ const AttendanceWidget = ({ studentId, lessons, setLessons }) => {
 
     return (
         <div className="attendance-widget">
-            <h3>Посещения студента</h3>
+            <h3>Посещения групповых занятий</h3>
             <div className="lessons-grid">
                 {lessons.map((lesson) => (
                     <div
@@ -37,8 +45,8 @@ const AttendanceWidget = ({ studentId, lessons, setLessons }) => {
                         <div className="lesson-info">
                             <p>
                                 <strong>
-                                    {lesson.dayOfWeek}{' '}
-                                    {lesson.extendedProps.direction}
+                                    {daysOfWeek[lesson.group.day]}{' '}
+                                    {lesson.group.direction}
                                 </strong>
                             </p>
                             <p>{new Date(lesson.start).toLocaleDateString()}</p>
@@ -74,4 +82,4 @@ const AttendanceWidget = ({ studentId, lessons, setLessons }) => {
     );
 };
 
-export default AttendanceWidget;
+export default AttendanceGroupWidget;

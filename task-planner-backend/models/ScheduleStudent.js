@@ -7,7 +7,19 @@ const scheduleStudentSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
-        lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+        lessons: [
+            {
+                lessonId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    refPath: 'lessons.lessonType',
+                },
+                lessonType: {
+                    type: String,
+                    enum: ['Lesson', 'GroupLesson'],
+                    required: true,
+                },
+            },
+        ],
     },
     { timestamps: true }
 );

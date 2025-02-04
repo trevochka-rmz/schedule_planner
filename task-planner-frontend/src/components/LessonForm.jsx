@@ -12,6 +12,7 @@ const LessonForm = ({ formType, selectedEvent, onSubmit, onCancel }) => {
         student: '',
         direction: '',
         teacher: '',
+        lessonType: 'Lesson',
         theme: '',
         comment: '',
         commentAfter: '',

@@ -336,6 +336,7 @@ const SchedulePage = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
+            console.log('Данные занятий:', response.data); // Логируем ответ
             const lessons = response.data.lessons.map((lesson) => ({
                 id: lesson.id,
                 title: `${lesson.extendedProps.direction} (${lesson.extendedProps.student})`,

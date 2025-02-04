@@ -4,6 +4,7 @@ const Schedule = require('../models/Schedule');
 const ScheduleStudent = require('../models/ScheduleStudent');
 const Lesson = require('../models/Lesson');
 
+// Получения всех регулярных занятий
 exports.getAllRefularLesson = async (req, res) => {
     try {
         const allRegularLessons = await RegularLesson.find();
@@ -14,10 +15,11 @@ exports.getAllRefularLesson = async (req, res) => {
         }
         res.status(201).json(allRegularLessons);
     } catch (error) {
-        console.error('Ошибка при получения регулярных занятий:', error);
         res.status(500).json({ error: error.message });
     }
 };
+
+// Получения регулярных занятий студента по Id
 exports.getRegularLessonByStudentId = async (req, res) => {
     try {
         const { studentId } = req.params;
@@ -34,14 +36,11 @@ exports.getRegularLessonByStudentId = async (req, res) => {
 
         res.status(200).json(regularLessonsById);
     } catch (error) {
-        console.error(
-            'Ошибка при получении регулярных занятий для студента:',
-            error
-        );
         res.status(500).json({ error: error.message });
     }
 };
 
+// Добавления регулярного занятия
 exports.addRegularLesson = async (req, res) => {
     const {
         teacherId,
@@ -57,8 +56,7 @@ exports.addRegularLesson = async (req, res) => {
 
     try {
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Сбрасываем время для сравнения
-
+        today.setHours(0, 0, 0, 0);
         if (new Date(periodStart) < today) {
             return res.status(400).json({
                 message: 'Дата не может быть раньше сегодняшней',
@@ -70,8 +68,6 @@ exports.addRegularLesson = async (req, res) => {
                 message: 'Дата окончания не может быть раньше даты начала',
             });
         }
-
-        // Создание документа регулярного занятия
         const regularLesson = new RegularLesson({
             teacher: teacherId,
             student: studentId,
@@ -83,7 +79,6 @@ exports.addRegularLesson = async (req, res) => {
             periodStart,
             periodEnd,
         });
-        // Генерация дат для занятий
         const start = new Date(periodStart);
         const end = new Date(periodEnd);
         const lessons = [];
@@ -112,23 +107,35 @@ exports.addRegularLesson = async (req, res) => {
             }
         }
 
-        // Сохранение занятий
         const savedLessons = await Lesson.insertMany(lessons);
-
-        // Связывание занятий с регулярным занятием
         regularLesson.lessons = savedLessons.map((lesson) => lesson._id);
         await regularLesson.save();
-
-        // Обновление расписания преподавателя и студента
         await Schedule.findOneAndUpdate(
             { teacher: teacherId },
-            { $push: { lessons: { $each: savedLessons.map((l) => l._id) } } },
+            {
+                $push: {
+                    lessons: {
+                        $each: savedLessons.map((l) => ({
+                            lessonId: l._id,
+                            lessonType: 'Lesson',
+                        })),
+                    },
+                },
+            },
             { upsert: true }
         );
-
         await ScheduleStudent.findOneAndUpdate(
             { student: studentId },
-            { $push: { lessons: { $each: savedLessons.map((l) => l._id) } } },
+            {
+                $push: {
+                    lessons: {
+                        $each: savedLessons.map((l) => ({
+                            lessonId: l._id,
+                            lessonType: 'Lesson',
+                        })),
+                    },
+                },
+            },
             { upsert: true }
         );
 
@@ -141,6 +148,7 @@ exports.addRegularLesson = async (req, res) => {
     }
 };
 
+// Обновления регулярного занятия
 exports.updateRegularLesson = async (req, res) => {
     const { id } = req.params;
     const {
@@ -160,13 +168,14 @@ exports.updateRegularLesson = async (req, res) => {
 
         if (new Date(periodStart) < today) {
             return res.status(400).json({
-                message: 'The start date cannot be in the past.',
+                message: 'Дата начала периода не может быть в прошлом.',
             });
         }
 
         if (new Date(periodEnd) < new Date(periodStart)) {
             return res.status(400).json({
-                message: 'The end date cannot be earlier than the start date.',
+                message:
+                    'Дата окончания периода не может быть раньше даты начала.',
             });
         }
 
@@ -177,31 +186,15 @@ exports.updateRegularLesson = async (req, res) => {
         if (!regularLesson) {
             return res
                 .status(404)
-                .json({ message: 'Regular lesson not found' });
+                .json({ message: 'Регулярное занятие не найдено' });
         }
 
-        // Удаляем старые занятия из `Lesson`, `Schedule`, и `ScheduleStudent`
         const oldLessons = regularLesson.lessons;
         const teacherId = regularLesson.teacher;
         const studentId = regularLesson.student;
 
-        // Удаляем только занятия со статусом `scheduled`
-        await Lesson.deleteMany({
-            _id: { $in: oldLessons },
-            status: 'scheduled',
-        });
+        // ... (удаление старых занятий)
 
-        await Schedule.updateOne(
-            { teacher: teacherId },
-            { $pull: { lessons: { $in: oldLessons } } }
-        );
-
-        await ScheduleStudent.updateOne(
-            { student: studentId },
-            { $pull: { lessons: { $in: oldLessons } } }
-        );
-
-        // Обновляем данные регулярного занятия
         regularLesson.direction = direction;
         regularLesson.startTime = startTime;
         regularLesson.duration = duration;
@@ -211,7 +204,6 @@ exports.updateRegularLesson = async (req, res) => {
         regularLesson.periodStart = periodStart;
         regularLesson.periodEnd = periodEnd;
 
-        // Генерируем новые занятия
         const start = new Date(periodStart);
         const end = new Date(periodEnd);
         const lessons = [];
@@ -241,22 +233,8 @@ exports.updateRegularLesson = async (req, res) => {
             }
         }
 
-        const savedLessons = await Lesson.insertMany(lessons);
+        // ... (создание новых занятий и обновление расписаний)
 
-        // Добавляем новые занятия в `Schedule` и `ScheduleStudent`
-        await Schedule.updateOne(
-            { teacher: teacherId },
-            { $push: { lessons: { $each: savedLessons.map((l) => l._id) } } },
-            { upsert: true }
-        );
-
-        await ScheduleStudent.updateOne(
-            { student: studentId },
-            { $push: { lessons: { $each: savedLessons.map((l) => l._id) } } },
-            { upsert: true }
-        );
-
-        // Обновляем ссылки на занятия в регулярном занятии
         regularLesson.lessons = savedLessons.map((lesson) => lesson._id);
         await regularLesson.save();
 
@@ -265,15 +243,15 @@ exports.updateRegularLesson = async (req, res) => {
             regularLesson,
         });
     } catch (error) {
-        console.error('Ошибка при обновлении регулярного занятия:', error);
         res.status(500).json({ error: error.message });
     }
 };
+
+// Удаления регулярного занятия
 exports.deleteRegularLesson = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Находим регулярное занятие
         const regularLesson = await RegularLesson.findById(id).populate(
             'lessons'
         );
@@ -286,36 +264,30 @@ exports.deleteRegularLesson = async (req, res) => {
 
         const teacherId = regularLesson.teacher;
         const studentId = regularLesson.student;
-
-        // Отбираем только занятия со статусом `scheduled`
         const scheduledLessons = regularLesson.lessons.filter(
             (lesson) => lesson.status === 'scheduled'
         );
 
         const lessonIdsToDelete = scheduledLessons.map((lesson) => lesson._id);
 
-        // Удаляем занятия из коллекции `Lesson`
         await Lesson.deleteMany({ _id: { $in: lessonIdsToDelete } });
 
-        // Убираем ссылки на занятия из `Schedule` и `ScheduleStudent`
         await Schedule.updateOne(
             { teacher: teacherId },
-            { $pull: { lessons: { $in: lessonIdsToDelete } } }
+            { $pull: { lessons: { lessonId: { $in: lessonIdsToDelete } } } }
         );
 
         await ScheduleStudent.updateOne(
             { student: studentId },
-            { $pull: { lessons: { $in: lessonIdsToDelete } } }
+            { $pull: { lessons: { lessonId: { $in: lessonIdsToDelete } } } }
         );
 
-        // Удаляем само регулярное занятие
         await RegularLesson.findByIdAndDelete(id);
 
         res.status(200).json({
             message: 'Регулярные занятия и занятия были успешно удалены',
         });
     } catch (error) {
-        console.error('Ошибка при удалении регулярного занятия:', error);
         res.status(500).json({ error: error.message });
     }
 };

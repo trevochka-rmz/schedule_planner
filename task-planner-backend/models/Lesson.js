@@ -14,7 +14,7 @@ const lessonSchema = new mongoose.Schema(
         },
         direction: { type: String, required: true },
         date: { type: Date, required: true },
-        time: { type: String, required: true }, // Формат: HH:mm
+        time: { type: String, required: true },
         duration: { type: Number, default: 60 },
         status: {
             type: String,

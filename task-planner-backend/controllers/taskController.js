@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Task = require('../models/Task');
 
+// Создание задачи
 exports.createTask = async (req, res) => {
     try {
         const taskInfo = req.body;
@@ -15,13 +16,14 @@ exports.createTask = async (req, res) => {
             task: newTask,
         });
     } catch (error) {
-        console.error('Ошибка сервера при создании задачи:', error);
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,
         });
     }
 };
+
+// Получения всех задач
 exports.getAllTasks = async (req, res) => {
     try {
         const tasks = await Task.find();
@@ -32,7 +34,6 @@ exports.getAllTasks = async (req, res) => {
         }
         res.status(200).json(tasks);
     } catch (error) {
-        console.error('Ошибка сервера при получении задач:', error);
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,
@@ -40,16 +41,14 @@ exports.getAllTasks = async (req, res) => {
     }
 };
 
+// Обновления задачи
 exports.updateTask = async (req, res) => {
     try {
         const { taskId } = req.params;
         const updateTask = req.body;
-        // Обновляем данные урока
-        const updatedTask = await Task.findByIdAndUpdate(
-            taskId,
-            updateTask,
-            { new: true } // Возвращаем обновленный документ
-        );
+        const updatedTask = await Task.findByIdAndUpdate(taskId, updateTask, {
+            new: true,
+        });
         if (!updatedTask) {
             return res.status(404).json({ message: 'Задача не найдена' });
         }
@@ -59,7 +58,6 @@ exports.updateTask = async (req, res) => {
             task: updatedTask,
         });
     } catch (error) {
-        console.error('Ошибка сервера при изменении задач:', error);
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,
@@ -82,15 +80,13 @@ exports.changeStatusTask = async (req, res) => {
                 .status(400)
                 .json({ message: 'Недопустимый статус задачи.' });
         }
-
-        // Обновляем задачу и добавляем дату завершения/отмены, если необходимо
         const updateFields = { status };
         if (status === 'completed') {
-            updateFields.completedAt = new Date(); // Фиксируем дату завершения
-            updateFields.canceledAt = null; // Сбрасываем дату отмены, если она есть
+            updateFields.completedAt = new Date();
+            updateFields.canceledAt = null;
         } else if (status === 'canceled') {
-            updateFields.canceledAt = new Date(); // Фиксируем дату отмены
-            updateFields.completedAt = null; // Сбрасываем дату завершения
+            updateFields.canceledAt = new Date();
+            updateFields.completedAt = null;
         } else {
             updateFields.completedAt = null;
             updateFields.canceledAt = null;
@@ -106,7 +102,6 @@ exports.changeStatusTask = async (req, res) => {
 
         res.json({ message: 'Статус задачи обновлён.', task });
     } catch (error) {
-        console.error('Ошибка сервера при изменении статуса задачи:', error);
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,
@@ -114,6 +109,7 @@ exports.changeStatusTask = async (req, res) => {
     }
 };
 
+// Удаления задачи
 exports.deleteTask = async (req, res) => {
     try {
         const { taskId } = req.params;
@@ -141,10 +137,6 @@ exports.getTasksTeacherId = async (req, res) => {
         }
         res.status(200).json(tasks);
     } catch (error) {
-        console.error(
-            'Ошибка сервера при получении задач преподавателя:',
-            error
-        );
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,
@@ -167,10 +159,6 @@ exports.getTasksCompletedTeacherId = async (req, res) => {
         }
         res.status(200).json(tasks);
     } catch (error) {
-        console.error(
-            'Ошибка сервера при получении выполненных задач преподавателя:',
-            error
-        );
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,
@@ -193,10 +181,6 @@ exports.getTasksPendingTeacherId = async (req, res) => {
         }
         res.status(200).json(tasks);
     } catch (error) {
-        console.error(
-            'Ошибка сервера при получении планиируемых задач преподавателя:',
-            error
-        );
         res.status(500).json({
             message: 'Ошибка сервера',
             error: error.message,

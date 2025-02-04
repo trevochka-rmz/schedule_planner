@@ -101,3 +101,9 @@
     display: flex;
     justify-content: space-between;
 }
+.margin-top-small {
+    margin-top: 10px; /* Adjust the value as needed */
+}
+.margin-top-small h3 {
+    margin-top: 10px; /* Adjust the value as needed */
+}

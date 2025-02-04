@@ -3,7 +3,7 @@ const User = require('../models/User');
 const { JWT_SECRET } = require('../config/keys');
 
 // Middleware для проверки авторизации (JWT токен)
-const protect = async (req, res, next) => {
+exports.protect = async (req, res, next) => {
     let token;
 
     if (
@@ -11,16 +11,10 @@ const protect = async (req, res, next) => {
         req.headers.authorization.startsWith('Bearer')
     ) {
         try {
-            // Извлечение токена
             token = req.headers.authorization.split(' ')[1];
-
-            // Расшифровка токена
             const decoded = jwt.verify(token, JWT_SECRET);
-
-            // Поиск пользователя по ID из токена
-            req.user = await User.findById(decoded.id).select('-password'); // Убираем пароль из запроса
-
-            next(); // Передаём управление следующему middleware/контроллеру
+            req.user = await User.findById(decoded.id).select('-password');
+            next();
         } catch (error) {
             console.error(error);
             res.status(401).json({
@@ -28,12 +22,12 @@ const protect = async (req, res, next) => {
             });
         }
     }
-
     if (!token) {
         res.status(401).json({ message: 'Неавторизован, токен отсутствует' });
     }
 };
-const verifyToken = (req, res, next) => {
+
+exports.verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res
@@ -43,8 +37,8 @@ const verifyToken = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Расшифровка токена
-        req.user = decoded; // Привязываем данные пользователя к запросу
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
         next();
     } catch (error) {
         res.status(403).json({
@@ -54,19 +48,13 @@ const verifyToken = (req, res, next) => {
 };
 
 // Middleware для проверки роли пользователя
-const roleCheck = (roles) => {
+exports.roleCheck = (roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return res
                 .status(403)
                 .json({ message: 'Недостаточно прав для доступа' });
         }
-        next(); // Если роль подходит, передаём управление
+        next();
     };
-};
-
-module.exports = {
-    protect,
-    verifyToken,
-    roleCheck,
 };

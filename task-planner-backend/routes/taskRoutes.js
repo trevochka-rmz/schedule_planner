@@ -1,26 +1,25 @@
 const express = require('express');
-const {
-    createTask,
-    getAllTasks,
-    deleteTask,
-    updateTask,
-    getTasksTeacherId,
-    getTasksCompletedTeacherId,
-    getTasksPendingTeacherId,
-    changeStatusTask,
-} = require('../controllers/taskController');
-
+const taskController = require('../controllers/taskController');
 const router = express.Router();
 
-router.post('/create', createTask);
-router.patch('/update/:taskId', updateTask);
-router.delete('/delete/:taskId', deleteTask);
-router.patch('/status/:taskId', changeStatusTask);
+// Методы для задач
+router.post('/create', taskController.createTask);
+router.patch('/update/:taskId', taskController.updateTask);
+router.delete('/delete/:taskId', taskController.deleteTask);
+router.patch('/status/:taskId', taskController.changeStatusTask);
 
 //Получения задач
-router.get('/all', getAllTasks);
-router.get('/teacher/:teacherId', getTasksTeacherId); // Получения всех задач преподавателя
-router.get('/teacher/:teacherId/completed', getTasksCompletedTeacherId);
-router.get('/teacher/:teacherId/pending', getTasksPendingTeacherId);
+router.get('/all', taskController.getAllTasks);
+router.get('/teacher/:teacherId', taskController.getTasksTeacherId);
+router.get(
+    '/teacher/:teacherId/completed',
+
+    taskController.getTasksCompletedTeacherId
+);
+router.get(
+    '/teacher/:teacherId/pending',
+
+    taskController.getTasksPendingTeacherId
+);
 
 module.exports = router;

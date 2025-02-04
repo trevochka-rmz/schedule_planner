@@ -1,40 +1,13 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { JWT_SECRET } = require('../config/keys');
-const {
-    sendEmailToHTML,
-    generateEmailHtml,
-    saveUserToExcel,
-} = require('../utils/sendEmail');
-
-// Создание JWT токена
-const generateToken = (id) => {
-    return jwt.sign({ id }, JWT_SECRET, {
-        expiresIn: '30d', // Токен истекает через 30 дней
-    });
-};
-
-const generateUniqueLogin = async (fullname) => {
-    const usernameBase = fullname.split(' ')[0].toLowerCase();
-    let uniqueLogin;
-    let isUnique = false;
-
-    while (!isUnique) {
-        const randomSuffix = Math.floor(1000 + Math.random() * 9000); // Генерируем случайное число
-        uniqueLogin = `${usernameBase}${randomSuffix}`;
-
-        // Проверяем, существует ли такой логин в базе данных
-        const existingUser = await User.findOne({ login: uniqueLogin });
-        if (!existingUser) {
-            isUnique = true; // Логин уникален
-        }
-    }
-
-    return uniqueLogin;
-};
+const { sendEmailToHTML, generateEmailHtml } = require('../utils/sendEmail');
+const { generateUniqueLogin, generateToken } = require('../utils/authUtil');
+const { saveUserToExcel } = require('../utils/saveData');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const { sendEmail } = require('../utils/sendEmail');
 
 // Регистрация пользователя
-const registerUser = async (req, res) => {
+exports.registerUser = async (req, res) => {
     const {
         fullname,
         email,
@@ -53,7 +26,6 @@ const registerUser = async (req, res) => {
             });
         }
 
-        // Проверка уникальности email (если email не пустой)
         if (email.trim() !== '') {
             const emailExists = await User.findOne({ email });
             if (emailExists) {
@@ -62,8 +34,6 @@ const registerUser = async (req, res) => {
                 });
             }
         }
-
-        // Проверка уникальности phone (если phone не пустой)
         if (phone.trim() !== '') {
             const phoneExists = await User.findOne({ phone });
             if (phoneExists) {
@@ -72,11 +42,9 @@ const registerUser = async (req, res) => {
                 });
             }
         }
-
         const login = await generateUniqueLogin(fullname);
         const randomPassword = Math.random().toString(36).slice(-8);
 
-        // Создание нового пользователя
         const user = await User.create({
             fullname,
             email,
@@ -85,7 +53,6 @@ const registerUser = async (req, res) => {
             role,
             login,
         });
-
         if (role === 'student' && studentInfo) {
             user.studentInfo = studentInfo;
         }
@@ -95,56 +62,48 @@ const registerUser = async (req, res) => {
         if (role === 'manager' && managerInfo) {
             user.managerInfo = managerInfo;
         }
-
-        // Сохранение пользователя в базе данных
         await user.save();
-
-        if (user) {
-            if (sendCredentials && email.trim() !== '') {
-                await sendEmailToHTML(
-                    email,
-                    'Ваши учетные данные',
-                    generateEmailHtml(fullname, login, email, randomPassword)
-                );
-            }
-
-            saveUserToExcel({
-                fullname,
-                login,
-                email: email || '',
-                phone: phone || '',
-                role,
-                randomPassword,
-            });
-
-            res.status(201).json({
-                _id: user.id,
-                fullname: user.fullname,
-                email: user.email,
-                phone: user.phone,
-                login: user.login,
-                role: user.role,
-                token: generateToken(user._id), // Возвращаем JWT токен
-            });
-        } else {
+        if (!user) {
             res.status(400).json({
                 message: 'Ошибка при создании пользователя',
             });
         }
+        if (sendCredentials && email.trim() !== '') {
+            await sendEmailToHTML(
+                email,
+                'Ваши учетные данные',
+                generateEmailHtml(fullname, login, email, randomPassword)
+            );
+        }
+        saveUserToExcel({
+            fullname,
+            login,
+            email: email || '',
+            phone: phone || '',
+            role,
+            randomPassword,
+        });
+        res.status(201).json({
+            _id: user.id,
+            fullname: user.fullname,
+            email: user.email,
+            phone: user.phone,
+            login: user.login,
+            role: user.role,
+            token: generateToken(user._id),
+        });
     } catch (err) {
         res.status(500).json({ message: 'Ошибка сервера: ' + err.message });
     }
 };
 
 // Авторизация пользователя
-
-const loginUser = async (req, res) => {
+exports.loginUser = async (req, res) => {
     const { identifier, password } = req.body;
 
     try {
-        // Поиск пользователя либо по email, либо по логину (username)
         const user = await User.findOne({
-            $or: [{ email: identifier }, { login: identifier }], // Ищем по двум полям
+            $or: [{ email: identifier }, { login: identifier }],
         });
 
         if (user && (await user.matchPassword(password))) {
@@ -152,9 +111,9 @@ const loginUser = async (req, res) => {
                 _id: user.id,
                 fullname: user.fullname,
                 email: user.email,
-                login: user.login, // Если у пользователя есть имя пользователя
+                login: user.login,
                 role: user.role,
-                token: generateToken(user._id), // Возвращаем JWT токен
+                token: generateToken(user._id),
             });
         } else {
             res.status(401).json({ message: 'Неверный логин или пароль' });
@@ -164,7 +123,70 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = {
-    registerUser,
-    loginUser,
+// Метод для смены
+exports.changePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        const userId = req.user.id;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'Пользователь не найден' });
+        }
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Неверный текущий пароль' });
+        }
+        if (newPassword.length < 6) {
+            return res
+                .status(400)
+                .json({ message: 'Пароль должен быть не менее 6 символов.' });
+        }
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Пароль успешно изменен' });
+    } catch (error) {
+        console.error('Ошибка изменения пароля:', error);
+        res.status(500).json({ message: 'Ошибка изменения пароля' });
+    }
+};
+
+// Метод для сброса пароля
+exports.resetPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        if (!email) {
+            return res.status(400).json({ message: 'Email обязателен' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: 'Пользователь с таким email не найден' });
+        }
+
+        const newPassword = crypto.randomBytes(8).toString('hex');
+
+        user.password = newPassword;
+        await user.save();
+
+        const subject = 'Ваш новый пароль';
+        const message = `Ваш новый пароль: ${newPassword}`;
+
+        await sendEmail(user.email, subject, message);
+
+        res.status(200).json({
+            message: 'Новый пароль отправлен на ваш email',
+        });
+    } catch (error) {
+        console.error('Ошибка сброса пароля:', error);
+        res.status(500).json({
+            message: 'Ошибка на сервере',
+            error: error.message,
+        });
+    }
 };
