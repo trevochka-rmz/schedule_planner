@@ -8,10 +8,12 @@ const LessonItem = ({
     onEditCompleted,
     onRevert,
     onDelete,
+    onCancel,
     onMark,
 }) => {
     if (!event) return null;
     const isCompleted = event.status == 'completed';
+    const isCanceled = event.status === 'canceled';
     const formatTime = (dateString) => {
         const options = { hour: '2-digit', minute: '2-digit' };
         return new Date(dateString).toLocaleTimeString('ru-RU', options);
@@ -34,6 +36,7 @@ const LessonItem = ({
                 padding: '10px',
                 border: '1px solid #ddd',
                 borderRadius: '8px',
+                // textDecoration: isCanceled ? 'line-through' : 'none',
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
             }}
         >
@@ -71,27 +74,50 @@ const LessonItem = ({
                 </p>
             )}
 
-            <div className="lesson-item-buttons">
-                <div className="button-main">
-                    {!isCompleted ? (
-                        <button onClick={() => onEdit(event)}>Изменить</button>
-                    ) : (
-                        <button onClick={() => onEditCompleted(event)}>
-                            Открыть
-                        </button>
-                    )}
-
-                    <button onClick={() => onDelete(event)}>Удалить</button>
-                    <button onClick={() => onDelete(event)}>Отменить</button>
-                </div>
-                <div className="button-second">
-                    {!isCompleted ? (
-                        <button onClick={() => onMark(event)}>Провести</button>
-                    ) : (
+            {isCanceled ? (
+                <div className="lesson-item-buttons">
+                    <div className="button-main-canceled">
                         <button onClick={() => onRevert(event)}>Вернуть</button>
-                    )}
+                    </div>
+                    <div className="button-second">
+                        <button onClick={() => onDelete(event)}>Удалить</button>
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <div className="lesson-item-buttons">
+                    <div className="button-main">
+                        {!isCompleted ? (
+                            <button onClick={() => onEdit(event)}>
+                                Изменить
+                            </button>
+                        ) : (
+                            <button onClick={() => onEditCompleted(event)}>
+                                Открыть
+                            </button>
+                        )}
+
+                        <button onClick={() => onDelete(event)}>Удалить</button>
+
+                        <button
+                            onClick={() => onCancel(event)}
+                            disabled={isCompleted}
+                        >
+                            Отменить
+                        </button>
+                    </div>
+                    <div className="button-second">
+                        {!isCompleted ? (
+                            <button onClick={() => onMark(event)}>
+                                Провести
+                            </button>
+                        ) : (
+                            <button onClick={() => onRevert(event)}>
+                                Вернуть
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

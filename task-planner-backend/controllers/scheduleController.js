@@ -181,8 +181,8 @@ exports.getScheduleByStudent = async (req, res) => {
             })
             .lean();
 
-        if (!scheduleStudent) {
-            return res.status(404).json({ message: 'Расписание не найдено' });
+        if (!scheduleStudent || !scheduleStudent.lessons.length) {
+            return res.status(200).json({ lessons: [] });
         }
 
         const parseDate = (lesson) => {

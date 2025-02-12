@@ -15,6 +15,7 @@ function StudentProfilePage() {
     const [lessons, setLessons] = useState([]);
     const [regularLessons, setRegularLessons] = useState([]);
     const [loading, setLoading] = useState(true);
+    // const [error, setError] = useState(null);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -77,20 +78,21 @@ function StudentProfilePage() {
             try {
                 const token = localStorage.getItem('token');
                 const config = {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 };
 
                 const { data } = await axios.get(
                     `http://localhost:5000/api/schedule/student/${id}`,
                     config
                 );
-                setLessons(data.lessons);
+
+                setLessons(data.lessons || []);
             } catch (error) {
                 console.error('Ошибка загрузки занятий:', error);
+                setLessons([]);
             }
         };
+
         const fetchRegularLessons = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -107,7 +109,7 @@ function StudentProfilePage() {
                 setRegularLessons(data);
                 setLoading(false);
             } catch (err) {
-                setError(err.message);
+                // setError(err.message);
                 setLoading(false);
             }
         };
@@ -122,19 +124,19 @@ function StudentProfilePage() {
             try {
                 const token = localStorage.getItem('token');
                 const config = {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    headers: { Authorization: `Bearer ${token}` },
                 };
 
                 const { data } = await axios.get(
                     `http://localhost:5000/api/regular/regular-lessons/${id}`,
                     config
                 );
-                setRegularLessons(data);
+
+                setRegularLessons(data || []);
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
+                setRegularLessons([]);
                 setLoading(false);
             }
         };

@@ -48,7 +48,6 @@ const App = () => {
                     },
                 }
             );
-            console.log(data);
             setUserData({
                 userId: data._id,
                 userName: data.fullname,
@@ -101,14 +100,11 @@ const App = () => {
                     data.urlPhoto || 'https://via.placeholder.com/40'
                 );
                 setIsAuthenticated(true);
-                console.log(userId);
-                console.log(userRole);
             } catch (error) {
                 console.error('Ошибка получения данных пользователя:', error);
                 setIsAuthenticated(false);
             }
         };
-        console.log(userRole);
         fetchUser();
     }, []);
 

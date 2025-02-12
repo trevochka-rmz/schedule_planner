@@ -12,6 +12,7 @@
     display: flex;
     flex-direction: column;
     z-index: 1010; /* Убедитесь, что форма выше overlay */
+    /* overflow-y: auto; */
 }
 
 /* Затенение фона при открытом модальном окне */
@@ -45,9 +46,6 @@
 }
 
 /* Убираем возможные лишние отступы и настройки */
-body {
-    overflow: hidden; /* Отключаем прокрутку страницы, пока открыто модальное окно */
-}
 
 .lesson-form-main label {
     display: block;

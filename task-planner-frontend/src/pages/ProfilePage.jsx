@@ -30,7 +30,6 @@ const ProfilePage = () => {
                 const { data } = await getUserProfile();
                 setProfile(data);
                 setFormData({
-                    // id: data._id,
                     email: data.email || '',
                     fullname: data.fullname || '',
                     gender: data.teacherInfo?.gender || '',
@@ -51,18 +50,16 @@ const ProfilePage = () => {
         try {
             setError('');
             setMessage('');
-            // Формирование обновляемых данных
             const updatedData = {
-                fullname: formData.fullname, // Обновление основного имени
+                fullname: formData.fullname,
                 teacherInfo: {
-                    gender: formData.gender, // Пол внутри teacherInfo
+                    gender: formData.gender,
                 },
             };
 
             // Отправка данных на сервер
             const response = await updateUserProfile(updatedData);
             if (response.status === 200) {
-                // Обновление локального состояния профиля
                 setProfile((prevProfile) => ({
                     ...prevProfile,
                     fullname: formData.fullname,
@@ -73,7 +70,7 @@ const ProfilePage = () => {
                         gender: formData.gender,
                     },
                 }));
-                setEditMode(false); // Выход из режима редактирования
+                setEditMode(false);
                 notifySuccess('Данные успешно обновлены!');
             }
         } catch (error) {
@@ -99,7 +96,6 @@ const ProfilePage = () => {
             setError('Новый пароль должен содержать не менее 6 символов.');
             return;
         }
-
         try {
             const response = await changeUserPassword(
                 passwordData.currentPassword,

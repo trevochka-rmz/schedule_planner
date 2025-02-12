@@ -26,7 +26,7 @@ router.delete(
 // Получения всех регулярных занятий Lesson
 router.get('/all', regularLessonsController.getAllRefularLesson);
 router.get(
-    '/regular-lessons/:studentId',
+    '/regular-lessons/:id',
     regularLessonsController.getRegularLessonByStudentId
 );
 

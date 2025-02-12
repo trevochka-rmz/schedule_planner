@@ -65,3 +65,36 @@
     font-weight: bold;
     color: #ff9800;
 }
+@media (max-width: 768px) {
+    .tasks-container {
+        padding: 10px;
+    }
+
+    .tasks-title {
+        font-size: 20px;
+    }
+
+    .add-user-button {
+        max-width: 100%;
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .task-item {
+        padding: 12px;
+    }
+
+    .task-item h3 {
+        font-size: 16px;
+    }
+
+    .task-item p {
+        font-size: 12px;
+    }
+
+    .task-item button {
+        width: 100%;
+        font-size: 12px;
+        padding: 6px;
+    }
+}

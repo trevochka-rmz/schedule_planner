@@ -6,25 +6,32 @@
 }
 
 .header {
-    width: 100%; /* Header занимает всю ширину экрана */
-    position: fixed; /* Фиксируем Header в верхней части экрана */
+    width: 100%;
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000; /* Поверх всего контента */
+    z-index: 1000;
 }
 
 .app-container {
     display: flex;
-    flex: 1; /* Контейнер занимает оставшуюся высоту после Header */
-    margin-top: 60px; /* Отступ равен высоте Header */
-    height: calc(
-        100vh - 60px
-    ); /* Убираем высоту Header из доступного пространства */
+    flex: 1;
+    margin-top: 60px;
+    height: calc(100vh - 60px);
 }
-
+/* 
 .content {
-    flex: 1; /* Контент занимает оставшееся пространство */
+    flex: 1; 
     padding: 20px;
-    overflow-y: auto; /* Прокрутка для длинного контента */
-    background-color: #f4f4f4; /* Светлый фон */
+
+    overflow-y: auto;
+    background-color: #f4f4f4;
+} */
+.content {
+    flex: 1;
+    padding: 20px;
+    /* margin-left: 250px;  */
+    height: 100vh;
+    overflow-y: auto; /* Разрешаем скроллинг */
+    background-color: #f4f4f4;
 }

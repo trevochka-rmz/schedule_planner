@@ -1,10 +1,3 @@
-.schedule-page {
-    position: relative;
-    margin-left: 250px; /* Отступ для sidebar, корректируем в зависимости от ширины */
-    margin-top: 50px; /* Отступ для header, корректируем в зависимости от высоты */
-    padding: 20px;
-}
-
 h1 {
     text-align: center;
     margin-bottom: 20px;

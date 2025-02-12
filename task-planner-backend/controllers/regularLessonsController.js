@@ -22,19 +22,14 @@ exports.getAllRefularLesson = async (req, res) => {
 // Получения регулярных занятий студента по Id
 exports.getRegularLessonByStudentId = async (req, res) => {
     try {
-        const { studentId } = req.params;
+        const { id } = req.params;
 
-        const regularLessonsById = await RegularLesson.find({
-            student: studentId,
-        });
+        const regularLessonsById = await RegularLesson.find({ student: id });
 
-        if (!regularLessonsById || regularLessonsById.length === 0) {
-            return res.status(404).json({
-                message: `Регулярные занятия для студента с ID ${studentId} не найдены`,
-            });
-        }
-
-        res.status(200).json(regularLessonsById);
+        // Возвращаем пустой массив вместо 404
+        res.status(200).json(
+            regularLessonsById.length > 0 ? regularLessonsById : []
+        );
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

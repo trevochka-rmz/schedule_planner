@@ -1,10 +1,19 @@
-/* General styling */
-body {
+/* body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f5f5f5;
     color: #333;
+}
+html {
+    height: 100%;
+} */
+html,
+body {
+    height: 100vh; /* Полная высота экрана */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Убираем скролл у всей страницы */
 }
 
 .profile-page {
@@ -14,21 +23,19 @@ body {
     padding: 20px;
     gap: 20px;
     align-items: flex-start;
+    /* overflow-y: auto; */
 }
 
-/* Left block */
 .left-block {
     flex: 2 600px;
     min-height: 210px;
-    max-height: 800px;
+    /* max-height: 800px; */
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     display: flex;
     gap: 20px;
-    /* align-items: flex-start; */
-    /* flex-direction: row; */
     justify-content: right;
 }
 
@@ -165,7 +172,6 @@ body {
     padding: 20px;
     height: 250px;
     box-sizing: border-box;
-    /* overflow-y: auto; */
 }
 
 .profile-table {
@@ -213,7 +219,9 @@ body {
     font-size: 1.2em;
 }
 
-/* Responsive design */
+.edit-button {
+    margin-top: 20px;
+}
 @media (max-width: 768px) {
     .profile-page {
         flex-direction: column;
@@ -225,9 +233,34 @@ body {
     .schedule-section {
         width: 100%;
     }
+
+    .left-block {
+        max-height: none;
+    }
+
+    .right-block,
+    .schedule-section {
+        margin-bottom: 20px;
+    }
 }
 
-/* Align photo to the left and information to the right  */
-.edit-button {
-    margin-top: 20px;
+@media (max-width: 480px) {
+    .profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-info h2 {
+        font-size: 1em;
+    }
+
+    .edit-form input,
+    .edit-form select {
+        font-size: 0.9em;
+    }
+
+    .save-button,
+    .cancel-button {
+        font-size: 0.9em;
+    }
 }

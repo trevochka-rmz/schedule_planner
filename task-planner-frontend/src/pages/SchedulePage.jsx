@@ -182,7 +182,7 @@ const SchedulePage = () => {
                     event.id === lessonId
                         ? {
                               ...event,
-                              color: '#3788d8', // Вернуть синий цвет
+                              color: '#3788d8',
                               status: 'scheduled',
                               extendedProps: {
                                   ...event.extendedProps,
@@ -273,7 +273,43 @@ const SchedulePage = () => {
             notifyError('Не удалось обновить статус занятия');
         }
     };
+    const handleCancelLesson = async () => {
+        if (!selectedEvent || !selectedEvent.id) {
+            notifyError('Не выбрано занятие для отмены');
+            return;
+        }
 
+        const lessonId = selectedEvent.id;
+
+        try {
+            const token = localStorage.getItem('token');
+            await axios.patch(
+                `http://localhost:5000/api/schedule/lessons/${lessonId}/status`,
+                { status: 'canceled' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setEvents((prevEvents) =>
+                prevEvents.map((event) =>
+                    event.id === lessonId
+                        ? {
+                              ...event,
+                              status: 'canceled',
+                              color: 'gray',
+                              extendedProps: {
+                                  ...event.extendedProps,
+                              },
+                          }
+                        : event
+                )
+            );
+
+            notifySuccess('Занятие успешно отменено');
+        } catch (error) {
+            console.error('Ошибка отмены занятия:', error);
+            notifyError('Не удалось отменить занятие');
+        }
+    };
     const handleDelete = async () => {
         if (!selectedEvent || !selectedEvent.id) {
             notifyError('Не выбрано занятие для удаления');
@@ -343,7 +379,11 @@ const SchedulePage = () => {
                 start: lesson.start,
                 end: lesson.end,
                 status: lesson.status,
-                color: lesson.status === 'completed' ? 'gray' : '#3788d8',
+                color:
+                    lesson.status === 'completed' ||
+                    lesson.status === 'canceled'
+                        ? 'gray'
+                        : '#3788d8',
                 extendedProps: lesson.extendedProps,
             }));
             setEvents(lessons);
@@ -470,20 +510,25 @@ const SchedulePage = () => {
                 }}
                 events={events}
                 eventClick={handleEventClick}
+                eventClassNames={(arg) => {
+                    return arg.event.extendedProps.status === 'canceled'
+                        ? ['canceled-event']
+                        : [];
+                }}
                 locale="ru"
                 height="700px"
-                slotMinTime="09:00" // Начало отображаемого времени для слотов
-                slotMaxTime="24:00" // Конец отображаемого времени для слотов
-                slotDuration="00:15" // Длительность слотов (30 минут)
-                snapDuration="00:30" // Привязка событий к 30 минутам
-                scrollTime="08:00" // Начальная позиция прокрутки
-                allDaySlot={false} // Убирает "весь день" слот
-                slotLabelInterval="00:30" // Интервал отображения меток времени
+                slotMinTime="09:00"
+                slotMaxTime="24:00"
+                slotDuration="00:15"
+                snapDuration="00:30"
+                scrollTime="08:00"
+                allDaySlot={false}
+                slotLabelInterval="00:30"
                 slotLabelFormat={{
                     hour: '2-digit',
                     minute: '2-digit',
-                    omitZeroMinute: false, // Показывает "08:00" вместо "8"
-                    meridiem: false, // Убирает AM/PM (если используется)
+                    omitZeroMinute: false,
+                    meridiem: false,
                 }}
                 buttonText={{
                     today: 'Сегодня',
@@ -493,16 +538,16 @@ const SchedulePage = () => {
                 }}
             />
 
-            {/* Рендерим LessonItem, если selectedEvent выбран */}
             {selectedEvent && (
                 <LessonItem
                     event={selectedEvent}
                     position={eventPosition}
-                    onEdit={(lesson) => openModalForEdit(lesson)} // Используем функцию для редактирования
+                    onEdit={(lesson) => openModalForEdit(lesson)}
                     onRevert={handleRevert}
                     onDelete={handleDelete}
                     onEditCompleted={(lesson) => openModalForEditMark(lesson)}
                     onMark={(lesson) => openModalForMark(lesson)}
+                    onCancel={handleCancelLesson}
                 />
             )}
 
@@ -513,59 +558,19 @@ const SchedulePage = () => {
                 className="react-modal-content"
                 overlayClassName="react-modal-overlay"
             >
-                {formType === 'edit' && selectedEvent ? (
-                    <LessonForm
-                        formType="edit"
-                        selectedEvent={selectedEvent}
-                        onSubmit={
-                            formType === 'edit' || formType === 'editMark'
-                                ? handleEditLesson
-                                : formType === 'mark'
-                                ? handleComplete
-                                : handleAddLesson
-                        }
-                        onCancel={closeModal}
-                    />
-                ) : formType === 'editMark' && selectedEvent ? (
-                    <LessonForm
-                        formType="editMark"
-                        selectedEvent={selectedEvent}
-                        onSubmit={
-                            formType === 'edit' || formType === 'editMark'
-                                ? handleEditLesson
-                                : formType === 'mark'
-                                ? handleComplete
-                                : handleAddLesson
-                        }
-                        onCancel={closeModal}
-                    />
-                ) : formType === 'mark' && selectedEvent ? (
-                    <LessonForm
-                        formType="mark"
-                        selectedEvent={selectedEvent}
-                        onSubmit={
-                            formType === 'edit' || formType === 'editMark'
-                                ? handleEditLesson
-                                : formType === 'mark'
-                                ? handleComplete
-                                : handleAddLesson
-                        }
-                        onCancel={closeModal}
-                    />
-                ) : (
-                    <LessonForm
-                        formType="add"
-                        onSubmit={
-                            formType === 'edit' || formType === 'editMark'
-                                ? handleEditLesson
-                                : formType === 'mark'
-                                ? handleComplete
-                                : handleAddLesson
-                        }
-                        teacher={teacherId}
-                        onCancel={closeModal}
-                    />
-                )}
+                <LessonForm
+                    formType={formType}
+                    selectedEvent={selectedEvent}
+                    onSubmit={
+                        formType === 'edit' || formType === 'editMark'
+                            ? handleEditLesson
+                            : formType === 'mark'
+                            ? handleComplete
+                            : handleAddLesson
+                    }
+                    teacher={teacherId}
+                    onCancel={closeModal}
+                />
             </Modal>
         </div>
     );

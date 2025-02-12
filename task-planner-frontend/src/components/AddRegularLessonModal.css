@@ -11,6 +11,7 @@
     font-family: 'Arial', sans-serif;
     display: flex;
     flex-direction: column;
+    /* overflow-y: auto; */
 }
 
 /* Затенение фона при открытом модальном окне */
